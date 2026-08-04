@@ -1,0 +1,19 @@
+{
+  "name": "standards",
+  "owner": {
+    "name": "Jason Valadez",
+    "email": "jason@dopex.co"
+  },
+  "plugins": [
+    {
+      "name": "dev-standards",
+      "source": "./dev-standards",
+      "description": "House-standard software development skills, agents, hooks, and commands. Install at user scope."
+    },
+    {
+      "name": "multitenant",
+      "source": "./multitenant",
+      "description": "Tenant-isolation enforcement (SET LOCAL guard + cross-tenant test template). Install at project scope on multi-tenant projects only."
+    }
+  ]
+}

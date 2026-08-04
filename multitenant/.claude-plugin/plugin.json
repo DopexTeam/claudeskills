@@ -1,0 +1,9 @@
+{
+  "name": "multitenant",
+  "version": "0.2.0",
+  "description": "Per-project tenant-isolation enforcement: blocks session-level tenant context (SET app.* without LOCAL), ships the cross-tenant test template that is the artifact of record. Install only on multi-tenant projects.",
+  "author": {
+    "name": "Jason Valadez",
+    "email": "jason@dopex.co"
+  }
+}

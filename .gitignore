@@ -1,0 +1,87 @@
+# .gitignore — Claude Code plugin marketplace (skills, agents, hooks)
+#
+# What this repo ships IS text: SKILL.md files, .claude-plugin manifests,
+# hook scripts, and font/asset files under anthropic-skills/. Those are
+# deliverables and stay tracked. Everything below is either a secret, a
+# per-machine artifact, or generated noise.
+
+# ─── Secrets & credentials ────────────────────────────────────────────
+# Hook scripts and skill helpers may read tokens from a local env file.
+# Never let one reach a commit.
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.pfx
+*.p12
+credentials.json
+service-account*.json
+*_secret*
+*.secret
+
+# ─── Claude Code per-machine state ────────────────────────────────────
+# Local permission overrides, transcripts, and session scratch. The
+# tracked plugin definitions live in */.claude-plugin/ and */skills/,
+# which these rules deliberately do not touch.
+.claude/settings.local.json
+.claude/*.local.json
+.claude/projects/
+.claude/todos/
+.claude/shell-snapshots/
+.claude/statsig/
+.claude/ide/
+.claude/history.jsonl
+
+# ─── Python (skill helper scripts) ────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ─── Node (validators / tooling) ──────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ─── Editor & IDE ─────────────────────────────────────────────────────
+# Flip .vscode/ to a negation if you ever want to share workspace settings.
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# ─── OS cruft ─────────────────────────────────────────────────────────
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+[Tt]humbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# ─── Scratch, backups, merge leftovers ────────────────────────────────
+*.log
+*.bak
+*.orig
+*.rej
+tmp/
+temp/
+scratch/
+
+# ─── Vendored upstream ────────────────────────────────────────────────
+# anthropic-skills/ is a copy of github.com/anthropics/skills. Its 410 files
+# are currently STAGED in the index (not yet committed). To stop vendoring it,
+# uncomment the line below AND run: git rm -r --cached anthropic-skills
+# A .gitignore rule alone never affects paths already in the index.
+# anthropic-skills/
