@@ -1,6 +1,6 @@
 {
   "name": "dev-standards",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "description": "House-standard software development skills, agents, hooks, and commands. Contract doc: SKILLS-MANIFEST.md at repo root.",
   "author": {
     "name": "Jason Valadez",

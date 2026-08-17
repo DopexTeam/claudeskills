@@ -62,11 +62,22 @@ most of it:
 
 ## Placement
 
-Developer docs live in the repo: `README.md` at root; `ARCHITECTURE.md` at root or
-`docs/`; API reference in `docs/`. End-user docs live where the user will actually
-read them — `docs/user/` as the repo default, but the delivery channel (help site,
-client folder, in-app) wins if one exists. Follow the project's existing convention
-over any of this; a second documentation home splits the truth.
+`README.md` stays at the repo root — it is the landing page, and it should carry the
+code-level handoff plus a pointer to the index, not the index itself.
+
+Everything else goes in the `docs/` tree that `project-artifacts` owns:
+**`docs/reference/`** for developer docs that describe current state (architecture
+overview, API reference, stack conventions), and **`docs/user/`** for end-user
+documentation. `docs/README.md` is the index — add an entry there when you add a
+document, because a document nothing points at does not exist.
+
+End-user docs default to `docs/user/`, but the delivery channel wins if one exists —
+a help site, a client folder, in-app content. What does not vary: they are written in
+the reader's vocabulary, using the screen's exact labels.
+
+Follow the project's existing convention over any of this. A second documentation home
+splits the truth, and reorganizing someone's docs while writing one is a scope
+violation — see `change-scoping`.
 
 ## Update triggers — docs are wrong the moment behavior changes
 

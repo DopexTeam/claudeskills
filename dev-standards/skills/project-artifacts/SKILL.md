@@ -39,9 +39,55 @@ where to look.
 - **One home per fact.** If a fact already lives in a sibling document, link it by ID
   rather than restating it. Two copies of a fact will eventually disagree, and a reader
   can't tell which one is lying.
-- **Default location: project root.** These documents work by being impossible to miss.
-  If the project already keeps documents in `docs/`, follow the project — and record that
-  placement as a small decision so the question never comes back.
+- **Default location: `docs/`, split by how the document changes.** Not by topic — in a
+  code repo nearly every document is developer-facing, so a `dev/` bucket swallows the
+  tree and immediately needs subfolders. Mutability discriminates; topic doesn't:
+
+  | Folder | Admission test |
+  |---|---|
+  | `decisions/` | Append-only, permanent IDs? → `DECISIONS.md`, `ASSUMPTIONS.md` |
+  | `reference/` | Describes current state, overwritten in place? |
+  | `sessions/` | Scoped to one build session? → build prompts, `HANDOFF.md` |
+  | `ops/` | Read while something is on fire? → `RUNBOOK.md` |
+  | `business/` | Reader is not an engineer? |
+  | `legal/` | Legally operative, authority from outside engineering? |
+  | `incoming/` | Authored outside the repo, not yet routed? |
+  | `old/` | Superseded by a named successor that exists **today** — or a spent session document (see below)? |
+
+  Ties break toward the earlier row. `docs/README.md` is the index and the **only** home
+  for the map. Four files stay at the repo root because tooling pins them there —
+  `CLAUDE.md`, `AGENTS.md`, `README.md`, `ONBOARDING.md` — and moving them breaks the
+  thing that loads them.
+
+  **A very small project can keep these at the root**, and a project that already does
+  should not be reorganized as a drive-by. Moving an existing flat root into the tree is
+  its own deliberate act, recorded as a numbered decision. When you do move: **the ID
+  scheme already in use wins** over this skill's `D-001` format — back-references are
+  load-bearing, and renumbering breaks every one of them silently.
+
+- **Session documents drain into `old/` when they are spent.** Three cases, one rule —
+  the plan stays lean, the record stays whole:
+  - A **completed build-prompt file** (every session in it closed) moves to `docs/old/`
+    whole, with a header naming what closed it and when.
+  - A **closed session's body** inside a still-active plan file archives to `docs/old/`
+    (one accumulating archive file per plan is fine) — but **its map row stays in the
+    plan forever**: status, date, what it shipped as. The row is the record; the body
+    is the archive.
+  - A **spent brief** — a session input whose output has returned and been routed —
+    moves to `docs/old/` with a pointer to the output. A brief whose deliverable exists
+    is done; keeping it in `sessions/` makes the plan read longer than it is.
+  On filename collisions with a live successor, suffix the version
+  (`PRICING-BOOK-V0.md`), never keep two files answering to one bare name.
+
+- **Documents authored outside the repo land in `docs/incoming/` first, never straight
+  into the tree.** A browser session, another chatbot, a lawyer's draft — none of them
+  had the record in view, so they may assert things about the system that aren't true or
+  re-decide something already settled. Filing one directly launders an outside opinion
+  into project truth. The full pass — classify, preserve the ID namespace, check claims
+  against the repo, diff against the record, escalate contradictions, route with
+  provenance — is in `references/incoming-triage.md`. **Read it before routing anything.**
+  The one rule that cannot be deferred: an incoming document that contradicts a *settled*
+  decision produces a supersession proposal and a stop, never a quiet amendment.
 
 ## DECISIONS.md — the numbered record
 

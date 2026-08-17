@@ -128,7 +128,7 @@ function main(input) {
         ask(
           `Escalation stop-list #${rule.cat} (${rule.label}): detected ${p.hint}. ` +
             `The house standard requires a human decision here — this prompt is that decision. ` +
-            `If declined, log the alternative taken to ASSUMPTIONS.md.`
+            `If declined, log the alternative taken to the assumptions log (docs/decisions/ASSUMPTIONS.md).`
         );
       }
     }

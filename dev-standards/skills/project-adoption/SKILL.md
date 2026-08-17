@@ -91,13 +91,23 @@ Write the results into the standard documents — their formats belong to
 `project-artifacts` (use its templates where installed; otherwise the same content
 under the same headings in plain markdown):
 
-- **DECISIONS.md** — the reconstructed entries.
-- **ASSUMPTIONS.md** — every *inferred* item, one entry each, disposition pending the
-  human's confirmation.
-- **RUNBOOK-deploy.md** — how this project deploys *today*, observed from CI config
-  and deploy scripts; unknowns marked, not smoothed over. A legacy project that can't
-  be safely deployed isn't adopted yet.
-- **DESIGN.md** — only if a real token system or component inventory exists to record.
+- **`docs/decisions/DECISIONS.md`** — the reconstructed entries. **If the project
+  already uses a decision ID scheme, keep it** — `D1`, `ADR-007`, whatever it is. Never
+  renumber into the template's format; back-references are load-bearing and renumbering
+  breaks every one of them silently.
+- **`docs/decisions/ASSUMPTIONS.md`** — every *inferred* item, one entry each,
+  disposition pending the human's confirmation.
+- **`docs/ops/RUNBOOK-deploy.md`** — how this project deploys *today*, observed from CI
+  config and deploy scripts; unknowns marked, not smoothed over. A legacy project that
+  can't be safely deployed isn't adopted yet.
+- **`docs/reference/DESIGN.md`** — only if a real token system or component inventory
+  exists to record.
+- **`docs/README.md`** — the index. Write it last, once you know what exists.
+
+Place these in the `docs/` tree (`project-artifacts` owns the layout and the placement
+test). **Adopting the tree in a repo that keeps documents at the root is itself a
+decision** — record it, and move the existing documents in a separate, deliberate pass
+rather than scattering new artifacts into a layout the project hasn't adopted.
 
 ### 6. Deliver the gap list
 

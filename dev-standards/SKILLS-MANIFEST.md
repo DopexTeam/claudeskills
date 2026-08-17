@@ -78,8 +78,8 @@ Build all of Tier 1 and 2. Install in stages so descriptions get real-use feedba
 **Tier 1 — build and install now (8)**
 `architecture-inquiry` · `project-artifacts` · `debugging-discipline` · `verification-discipline` · `change-scoping` · `testing-strategy` · `observability` · `design-workflow`
 
-**Tier 2 — build now, install when first triggered (5)**
-`mobile-ui-conventions` (first mobile screen) · `webgl-budget` (first 3D need) · `integration-adapters` (first external system) · `project-adoption` (first legacy/brownfield adoption — that trigger is already live, so it installs immediately; added v1.3) · `documentation` (first docs/README/manual request; added v1.4)
+**Tier 2 — build now, install when first triggered (6)**
+`mobile-ui-conventions` (first mobile screen) · `webgl-budget` (first 3D need) · `integration-adapters` (first external system) · `project-adoption` (first legacy/brownfield adoption — that trigger is already live, so it installs immediately; added v1.3) · `documentation` (first docs/README/manual request; added v1.4) · `doc-reconciliation` (first post-session drift sweep — trigger already live, installs immediately; added v1.8)
 
 **Tier 3 — do not build yet (2)**
 `codebase-conventions` (build at first brownfield project — currently greenfield, so this is correctly deferred) · `irreversible-changes` (build before the first migration or backfill)
@@ -118,13 +118,15 @@ Build all of Tier 1 and 2. Install in stages so descriptions get real-use feedba
 **Description (paste-ready):**
 > Write and maintain the project's canonical documents using fixed templates: numbered decision records, the ASSUMPTIONS log, operational runbooks, session handoffs, and the DESIGN ledger. Use this whenever a decision needs recording, a runbook or deployment procedure needs writing, an assumption needs logging mid-build, work needs handing off to another session or contributor, or the user asks where something should be documented — and whenever another skill produces output that needs a durable home. Owns document structure only; never makes the decisions it records.
 
-**Owns:** all five document schemas. The `[YOU]` / `[RUN]` split. Decision IDs and non-drifting invariants. The assumption disposition field.
+**Owns:** all five document schemas. The `[YOU]` / `[RUN]` split. Decision IDs and non-drifting invariants. The assumption disposition field. **The `docs/` tree layout and its placement test (added v1.5).** **The `docs/incoming/` triage protocol (added v1.5)** — how a document authored outside the repo enters the record.
 
 **Non-scope:**
 - Making architectural decisions → `architecture-inquiry`
 - Making design decisions → `design-workflow` / `frontend-design`
 - Running the procedures a runbook describes → the runbook's human
 - Deciding *whether* something is verified → `verification-discipline`
+- Reader-facing docs (README, manual, API reference) and their placement → `documentation`; this skill owns the tree, that skill owns what goes in `reference/` and `user/`
+- Deciding whether an incoming document's *content* is correct → the owning skill (a pricing brief is `architecture-inquiry`'s to interrogate); triage routes and flags conflicts, it does not adjudicate them
 
 **Bundled — `assets/` templates:**
 | Template | Contains |
@@ -135,11 +137,30 @@ Build all of Tier 1 and 2. Install in stages so descriptions get real-use feedba
 | `HANDOFF.md` | State, what's proven vs. assumed, next single action, known traps |
 | `DESIGN.md` | Resolved tokens, component inventory, directions tried and rejected with reasons, open questions |
 
-**Also bundles:** `references/runbook-failure-modes.md`
+**Also bundles:** `references/runbook-failure-modes.md` · `references/incoming-triage.md` *(added v1.5 — routing documents authored outside the repo, and the supersession rule when one contradicts the record)*
+
+**The `docs/` tree (normative, added v1.5).** Documents live in `docs/`, split by **how the document changes over time** rather than by topic — a topical split fails because most documents in a code repo are developer-facing, so the "dev" bucket swallows the tree:
+
+| Folder | Admission test | Typical contents |
+|---|---|---|
+| `decisions/` | Append-only, permanent IDs? | `DECISIONS.md`, `ASSUMPTIONS.md` |
+| `reference/` | Describes current state, overwritten in place? | architecture, specs, stack, design ledger |
+| `sessions/` | Scoped to one build session? | build prompts, `HANDOFF.md` |
+| `ops/` | Read while something is on fire? | `RUNBOOK.md` |
+| `business/` | Reader is not an engineer? | commercial briefs |
+| `legal/` | Legally operative, authority from outside engineering? | agreements, policies, terms — each with a status line |
+| `incoming/` | Authored outside the repo, not yet routed? | staging only; see `references/incoming-triage.md` |
+| `old/` | Superseded by a named successor that exists today? | archive; never a junk drawer |
+| `user/` | End-user documentation? | owned by `documentation`, not this skill |
+
+Ties break toward the earlier row: the record outranks the description, the description outranks the session note. `docs/README.md` is the index and the only home for the map — a map in two places is two maps that drift. Four files stay at the repo root because tooling pins them there: `CLAUDE.md`, `AGENTS.md`, `README.md`, and (where the onboarding tooling is used) `ONBOARDING.md`.
+
+**On adopting this in an existing project:** the tree is the default for new projects. Moving an existing flat root into it is a deliberate act that gets recorded as a numbered decision — and the ID scheme already in use always wins over the template's `D-001` format, because back-references are load-bearing and renumbering breaks them silently.
 
 **Evals:**
 1. "We decided to use per-tenant schemas instead of row-level security. Write that up properly, including what we rejected and why."
 2. "Write the deploy runbook for this — some steps I run, some are automated, and the migration step can't be undone."
+3. "I dropped four documents from a browser session into `docs/incoming/`. Sort them out." *(must route each, flag the one that contradicts a settled decision, and stop rather than silently amend it)*
 
 ---
 
@@ -399,6 +420,32 @@ The two consistently-forgotten items belong up front: thermal throttling across 
 
 ---
 
+### 5.15 `doc-reconciliation` — Tier 2 *(added v1.8)*
+
+**Description (paste-ready):**
+> Reconcile the project's markdown record with reality after work has moved on: sweep the `docs/` tree and the root-pinned files for drift, build a drift map from what the session actually changed, rank conflicting sources by authority — settled decisions outrank everything including newer files, the code outranks its descriptions, and among descriptions the most recently edited wins — then apply mechanical index and link fixes immediately but present substantive rewrites as a proposal and wait for approval. Use this at the end of a long or many-file session, whenever the user says the docs have drifted, grown stale, or are out of sync, whenever they ask to reconcile, sync, tidy, or true-up the README, architecture doc, or runbooks after changes landed, and before a handoff when reference docs may lie to the next session. Never rewrites append-only records or session history; a conflict with a settled decision is an escalation, not an edit.
+
+**Owns:** the drift-sweep method (map → rank → propose → edit). The authority ordering: settled decisions > the system itself > the freshest description. The mechanical / substantive / escalation gate — what may be applied unasked versus what waits for the human. The never-reconciled file classes (append-only records, session snapshots, `old/`). Repeat-offender diagnosis (a doc that drifts every pass has its fact in two homes, or no readers).
+
+**Non-scope:**
+- The `docs/` tree layout and the five internal schemas → `project-artifacts`; this skill sweeps the tree, never redefines it — and moving a stray root file *into* the tree is a recorded decision, not a reconciliation side effect
+- How replacement text is written (register, docs-from-evidence) → `documentation`; this skill decides *which* docs are stale, that skill governs the new words
+- Reconstructing a record that never existed → `project-adoption`; reconciliation maintains a record, it cannot conjure one
+- Whether the system's behavior is correct → `verification-discipline`; reconciliation syncs descriptions to the system as it is — finding the system wrong is a bug report, not a doc edit
+- Diff minimalism while applying approved edits → `change-scoping`
+- Documents authored outside the repo → `project-artifacts`' `incoming/` triage; reconciliation sweeps what is already in the tree
+
+**Bundled:** none — single-file skill; the pass must be followable without opening a reference.
+
+**Pairs with:** `/build-session` (its closing ritual points here) and `project-artifacts` (the tree it sweeps).
+
+**Evals:**
+1. "We just wrapped a long session on the billing pipeline — lots of code changed and I touched a couple of the docs while working. Sweep the rest of the record for anything that's now stale and true it up."
+2. "The architecture doc still says we poll for updates but we moved to webhooks a while back, and I think the README and the deploy runbook still describe the old flow. Reconcile the docs — check with me before rewriting anything substantive."
+3. "Update all the docs to match the code." *(trap: part of the code contradicts a settled decision — must escalate that conflict and stop on it, not sync the record to the code)*
+
+---
+
 ## 6. Hooks — enforcement
 
 | Event | Hook | Notes |
@@ -536,6 +583,7 @@ Update this table at the end of every authoring session. States: `not started` �
 | `mobile-ui-conventions` | installed (2026-08-02 — evals passed; Tier 2, installed immediately per user preference) |
 | `webgl-budget` | installed (2026-08-02 — evals passed; gate held in both directions) |
 | `integration-adapters` | installed (2026-08-02 — evals passed; completes the skill set) |
+| `doc-reconciliation` | evals passed (2026-08-17 — two live subagent runs against a planted-drift fixture: the guided reconcile and the "update all the docs to match the code" trap. Both applied mechanical fixes only, held substantive rewrites as proposals with the runbook edit proposed individually, refused to write unverified commands into a runbook, and escalated the settled-decision conflict without syncing either side. One ambiguity found and fixed: step 4 now states the supersession proposal is *appended* `open` — the only write an escalation makes. Caveat: body-behavior evals ran with the skill preloaded; description auto-trigger untested until installed — plugin bumped to 1.3.0, run `/plugin update` then spot-check triggering) |
 | hooks + `build-session` command | installed (2026-08-02 — 47 stdin unit tests incl. real Datapoll secrets diff; live `claude -p` tests: secrets block, escalation ask under bypass, SessionStart injection, config-over-code nudge, tenant-guard at project scope. Stop gate verified by real-transcript replay — `Stop` doesn't fire in print mode on 2.1.220, spot-check interactively per `hooks/README.md`. Both plugins installed via the local directory marketplace (now `standards`, renamed from `dopex` — see v1.6); skill junctions and agent copies migrated to plugin at v1.0.0.) |
 
 **Per-session protocol:**
@@ -616,6 +664,8 @@ These skills also target claude.ai, uploaded individually as capability skills. 
 
 *Log changes here with date and reason. A session that finds a genuine conflict amends this file before proceeding.*
 
+- **2026-08-17 (v1.8):** Added `doc-reconciliation` (§5.15, Tier 2) — the end-of-session drift sweep, requested by the owner because multi-file records (architecture doc, READMEs across directories, runbooks) grow stale between deliberate updates and nothing owned the periodic pass: `documentation` has per-change update triggers but no sweep, and `project-adoption` reconstructs missing records rather than maintaining live ones. Load-bearing content: the authority ordering (settled decisions outrank everything **including newer files**; the code outranks its descriptions; among descriptions the most recently session-edited file wins — the owner's recency rule, bounded so it never overrides a settled decision) and the propose-before-apply gate (mechanical index/link fixes land unasked; substantive rewrites are presented as a batch and wait for the human — the owner's explicit requirement). `/build-session` step 5 gained a matching "reconcile what the session made stale" bullet. Hooks unchanged — reconciliation is a closing ritual owned by the command, not session framing. Session calls made under the owner's brief and vetoable by rename/edit: the skill name `doc-reconciliation`, and the exact mechanical-vs-substantive boundary (index entries, dead links, renamed-file pointers auto-apply; everything that changes meaning waits). Plugin bumped to 1.3.0 for the version-keyed install cache. Tier 2 count 5 → 6.
+- **2026-08-14 (v1.7):** Documentation layout became normative, driven by a real project (Curbside Sites) that had reached 17 markdown files at its repo root. (a) §5.2 `project-artifacts` now owns **the `docs/` tree** — split by *how a document changes* (`decisions/`, `reference/`, `sessions/`, `ops/`, `business/`, `legal/`, `incoming/`, `old/`, plus `user/` owned by `documentation`) rather than by topic. A topical split was tried first and rejected in the field: in a code repo nearly every document is developer-facing, so a `dev/` bucket swallows the tree. Each folder carries a yes/no admission test so placement is never re-litigated. (b) §5.2 also owns **`docs/incoming/`** and the new `references/incoming-triage.md` — the pass for documents authored outside the repo (browser sessions, other chatbots, counsel's drafts). Its load-bearing rule: an incoming document that contradicts a **settled** decision produces a supersession proposal and a stop, never a quiet amendment — a document does not get an exemption from the stop-list for looking authoritative or being newer. (c) `documentation`'s Placement section rewritten to defer to the tree (`docs/reference/`, `docs/user/`, `README.md` stays at root as landing page + pointer). (d) `project-adoption` now scaffolds into the tree and is explicitly told to **keep an existing project's decision-ID scheme** rather than renumbering into the template's `D-001` — proven necessary in the field, where ~350 back-references cited `D1`–`D28` and renumbering would have broken every one silently. (e) **Both hook scripts updated**, which is the part skill edits alone would have missed: `session-protocol.js` (SessionStart, so its text frames *every* session) now points at `docs/README.md` and the triage rule, and its stop-list item 5 explicitly covers invalidation "on the authority of an incoming document"; `escalation-gate.js`'s assumption-log path updated. (f) `/build-session` reads the index first and checks `docs/incoming/` before starting. **Not changed:** the five document schemas, the ID-permanence rule, and the assumption disposition field — the field test exercised them and they held. **Open:** the tree is normative for new projects but there is no migration tooling; adopting it in an existing repo remains a hand-run, separately-recorded decision. **(g — same-day addendum, from the field):** §5.2 gained the **session-document drain rule** — completed build-prompt files, closed session bodies (map rows stay in the plan forever), and spent briefs all archive to `docs/old/`, with a version-suffix rule for filename collisions with a live successor; `/build-session`'s closing ritual gained the matching "drain the plan" step. Both came out of the Curbside consolidation, where the master plan had grown to 1,016 lines around a 30-line map.
 - **2026-08-03 (v1.6):** Renamed everything carrying the `dopex` brand, per owner decision. Plugin `dopex-house-standard` → **`dev-standards`** (owner's choice; bumped to v1.1.0), plugin `dopex-multitenant` → **`multitenant`** (v0.2.0), marketplace `dopex` → **`standards`** — the latter two names were session calls under the owner's "rename all" directive; veto by re-renaming and bumping versions. Repo folders renamed to match. Skill namespace is now `dev-standards:<skill>` and install commands read `<plugin>@standards`. Normative sections (§12.1, §13.1, §13.2) updated; dated amendment entries below retain the old names as historical record. Old installs were uninstalled and `dev-standards` v1.1.0 reinstalled at user scope; the `dopex-multitenant` project-scope install was retired without replacement — it pointed at a dead scratchpad test dir from the hooks session, and real installs happen per client project. Discovered during the rename: the repo has **zero git commits** — flagged to owner, not committed by this session.
 - **2026-08-02 (v1.5):** Hooks session (build order 14) completed; set is whole and the plugin route from §13.1 is now live. (a) §6 escalation gate moved `PermissionRequest` → `PreToolUse` with `permissionDecision: "ask"` — PreToolUse precedes the permission-mode check, so the gate holds under bypass/allowlists (verified live under `--dangerously-skip-permissions`). (b) Stop gate implemented as a fast deterministic command hook (edit + completion claim + no check after last edit → block), honoring §6's own speed warning; prompt-type variant deferred. (c) `dopex-multitenant` plugin built per §13.2 (tenant-guard hook + cross-tenant test template), installed at project scope only. (d) Distribution: `dopex` directory marketplace at the working-folder root; `dopex-house-standard` v1.0.0 installed at user scope; the 13 skill junctions and 2 agent copies in `~/.claude/` removed in favor of the plugin (`frontend-design` junction kept — upstream dependency, not ours). (e) `~/.claude/CLAUDE.md` created with the §9 global lines. (f) Hook-iteration gotcha recorded in `hooks/README.md`: the install cache is version-keyed; repo edits require a version bump + `plugin update`, `marketplace update` alone does not refresh it. (g) Known upstream limitation: `Stop` hooks don't fire in print mode (2.1.220) — gate verified by real-transcript replay; spot-check interactively.
 - **2026-08-01 (v1.1):** Added §13 implementation mechanics — plugin-repo-as-workspace, global/project scope splits, hook mechanics, reload semantics. Decided in planning conversation after v1; recorded so authoring sessions are self-contained.
