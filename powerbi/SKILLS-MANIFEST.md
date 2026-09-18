@@ -107,7 +107,30 @@ Every skill in `dev-standards` is prose. These three carry **executable payload*
 
 ---
 
+### 1.5 `powerbi-bookmark-toggle` — component
+
+First of the component sub-skills. Small, one job, built before it was written.
+
+**Description (paste-ready):** see the skill's own frontmatter.
+
+**Owns:** the `display: hidden` toggle mechanism. `applyOnlyToTargetVisuals` and `suppressActiveSection`. Remapping bookmarks onto a duplicated page. The bookmark navigator's two references.
+
+**Non-scope:**
+- Validating the edit → `powerbi-desktop-engine` (`pbircheck`)
+- Whether a toggle is the right component → `powerbi-design-bridge`
+- Measures, model edits, M → `powerbi-desktop-engine`
+- Page layout and where the visuals sit → the report's author
+
+**Pairs with:** `powerbi-design-bridge`, which decides that a page needs a summary/detail switch; this builds it.
+
+**Evals:**
+1. "I duplicated a page that has a summary/breakdown toggle at the top. On the copy the buttons render but clicking them does nothing. What's wrong and can you fix it without rebuilding the bookmarks by hand?"
+2. "Add a toggle to this page so the detail matrix and the summary matrix share the same space, and make sure clicking it doesn't blow away the slicer selections the user has made."
+
+---
+
 ## 2. Amendments
 
 - **v0.1** — plugin created. Three skills, first executable payload in this repository.
 - **v0.2** — added `powerbi-design-bridge`. Four skills. Establishes the component vocabulary that lets an HTML deliverable and a Power BI report share one design decision.
+- **v0.3** — added `powerbi-bookmark-toggle`, the first component sub-skill. Five skills. Sets the pattern: a component is built in a real report first, then written down, and the write-up carries the traps rather than the happy path.
