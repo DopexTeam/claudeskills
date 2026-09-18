@@ -58,6 +58,35 @@ evaluation categories.
 | Data | long format: one row per entity × category × rating |
 | Theme | ramp comes from `minimum` / `center` / `maximum` |
 
+**Two forms, and the one to reach for.** `objects.values[].properties.backColor`
+scoped to one measure by the selector's `metadata`. Either:
+
+- **`Conditional.Cases`** — discrete bands, one colour per rating step. What a
+  1–5 scorecard usually wants, because a 3 reads as a 3 rather than as 47% of
+  the way along a gradient.
+- **`FillRule.linearGradient3`** — continuous. Requires `min`, `mid` and `max`
+  (the middle stop is `mid`; `center` is the *theme's* name for the same idea,
+  and the two files disagree deliberately). Each stop needs `color` **and**
+  `value`.
+
+In a theme these are plain JSON; in a visual every leaf is an expression —
+`{"Literal": {"Value": "'#833795'"}}` with the quotes inside the string, and
+`"5D"` for a number.
+
+**Pin the domain.** Omitting `value` lets Power BI scale to the observed range,
+so the worst performer is always the darkest colour whatever they scored, and
+the colours mean something different after every refresh.
+
+**Blanks are not zeros.** `nullColoringStrategy: asZero` paints an unevaluated
+cell as 0 — past the bottom of a 1–5 scale — so an entity nobody rated renders
+as the worst on the page. Leave blanks unpainted.
+
+**A uniform heat map is a data defect, not a formatting one.** If every row
+shows the same colours, count distinct measure values against the grouping
+before touching the ramp: a First Finish scorecard had 192 cells, 16 vendors and
+12 distinct values — one per category — because the measure could not see its
+grouping. The ramp was already correct and had been for months.
+
 **Rotated column headers (`.rot`) — technique.** A matrix will not rotate its
 own headers, so turn the native header off and supply the header band yourself:
 textboxes with vertical text, or images, positioned above the matrix inside a
