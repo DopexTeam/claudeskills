@@ -100,7 +100,13 @@ def extract():
     made, failed = 0, []
     for f in sorted(glob.glob(os.path.join(CACHE, "*.js"))):
         d = _payload(open(f, encoding="utf-8").read())
-        name = os.path.basename(f)[len("DESKTOP."):].replace(".SCHEMA.JSON.js", "").replace(".js", "")
+        # REPORTTHEMESCHEMA.JSON.js has no ".SCHEMA." separator, so a single
+        # replace left it as reportthemeschema.json.json
+        name = os.path.basename(f)[len("DESKTOP."):]
+        for suffix in (".SCHEMA.JSON.js", ".JSON.js", ".js"):
+            if name.endswith(suffix):
+                name = name[: -len(suffix)]
+                break
         if d is None:
             failed.append(name)
             continue

@@ -84,6 +84,30 @@ Every skill in `dev-standards` is prose. These three carry **executable payload*
 
 ---
 
+### 1.4 `powerbi-design-bridge`
+
+**Description (paste-ready):** see the skill's own frontmatter.
+
+**Owns:** the closed component vocabulary shared by HTML deliverables and Power BI reports. The CSS-token to theme mapping. The verdict per component — clean, lossy, forbidden. The rule that the constraint belongs in the generator prompt rather than a review afterwards.
+
+**Non-scope:**
+- Editing models, M, or TMDL → `powerbi-desktop-engine`
+- Schema drift and contracts → `procore-schema-lock`
+- Number formatting at scale → `powerbi-visual-formatting`
+- Which questions a document should answer → the prompt; this skill constrains HOW, never WHAT
+- Fetching the data → the client's data connector
+
+**Bundled:** `references/component-catalogue.md` — nine components, each with its HTML form, Power BI form, data contract and verdict, derived from a real 48-class artifact rather than invented.
+
+**Pairs with:** `powerbi-desktop-engine`, whose `theme_from_css.py` converts the token block and validates it against the theme schema Desktop ships.
+
+**Evals:**
+1. "We generated this HTML closeout review for a client off live API data and they loved it. They now want the same thing as a Power BI report they can open any time. What survives the move, what doesn't, and what should I have done differently when generating it?"
+2. "Before I show this design to the client — can Power BI actually build it? It has a subcontractor heat-map with rotated category headers, a KPI strip, and a paragraph naming the best and worst performers with quotes from the evaluator."
+
+---
+
 ## 2. Amendments
 
 - **v0.1** — plugin created. Three skills, first executable payload in this repository.
+- **v0.2** — added `powerbi-design-bridge`. Four skills. Establishes the component vocabulary that lets an HTML deliverable and a Power BI report share one design decision.
