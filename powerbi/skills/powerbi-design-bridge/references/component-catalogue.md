@@ -15,7 +15,14 @@ surface Power BI actually exposes — `dataBars`, `icon`, `gradient`, `fillRule`
 |---|---|
 | **clean** | both sides express it fully; translation is mechanical |
 | **lossy** | translates, but something is given up — named explicitly |
-| **forbidden** | no Power BI equivalent. Do not generate it. |
+| **technique** | no *default* Power BI equivalent; achievable, and the method is given |
+
+There is almost no **forbidden**. An earlier draft of this file listed rotated
+headers, dark mode and pagination as impossible. All three are buildable, and
+the list was really "things whose method I did not know" wearing the costume of
+a capability limit. That mistake is expensive in the wrong direction: it narrows
+a design before anyone has tried. When a component looks impossible, the default
+assumption is that a technique exists and has not been found yet.
 
 ---
 
@@ -37,7 +44,7 @@ Keep to 4–6 per strip; Power BI cards stop being readable below ~120px wide.
 
 ---
 
-## 2. Heat-map matrix — **clean** (with one forbidden sub-part)
+## 2. Heat-map matrix — **clean** (headers need a technique)
 
 Entities × categories, each cell coloured by a rating band.
 
@@ -51,10 +58,11 @@ evaluation categories.
 | Data | long format: one row per entity × category × rating |
 | Theme | ramp comes from `minimum` / `center` / `maximum` |
 
-**Rotated column headers (`.rot`) are forbidden** — a matrix cannot rotate them.
-Use short category names, or accept horizontal scroll. This is the single
-biggest visual divergence, so decide it at design time rather than discovering
-it at build time.
+**Rotated column headers (`.rot`) — technique.** A matrix will not rotate its
+own headers, so turn the native header off and supply the header band yourself:
+textboxes with vertical text, or images, positioned above the matrix inside a
+visual group so they move together. Costs layout maintenance when categories
+change; buys the column density that makes a 15-category scorecard readable.
 
 ---
 
@@ -179,24 +187,87 @@ transparency trick. Prefer a chip (component 3) where the verdict is per-row.
 
 ---
 
-## Forbidden
+## 10. Pagination — **technique**
 
-| Wanted | Why not |
+A long list shown a page at a time, with the page count derived from the data.
+Implemented in MJS; the pattern is general.
+
+Two disconnected what-if tables, a stable rank, and two filter measures:
+
+```
+# Items Value = SELECTEDVALUE('# Items'[# Items], 28)     -- rows per page
+# Pages Value = SELECTEDVALUE('# Pages'[# Pages], 1)      -- current page
+
+Project Rank  = RANKX(ALLSELECTED(Project), ProjectDate[Project Start Date], , ASC)
+
+Item Filter =                      -- visual-level filter, keep = 1
+VAR _Page  = [# Pages Value]
+VAR _Size  = [# Items Value]
+VAR _Rank  = Project[Project Rank]
+VAR _Window =
+    FILTER(ALLSELECTED(Project[Project Start Date]),
+        _Rank > (_Page - 1) * _Size && _Rank <= _Page * _Size)
+RETURN IF(SELECTEDVALUE(Project[Project Start Date]) IN _Window, 1, 0)
+
+Page Filter =                      -- filter on the page slicer, keep = 1
+VAR _Total = CALCULATE(DISTINCTCOUNT(Project[id]), ALL(Project[id]))
+VAR _Pages = ROUNDUP(DIVIDE(_Total, [# Items Value]), 0)
+RETURN IF(SELECTEDVALUE('# Pages'[# Pages]) <= _Pages, 1, 0)
+```
+
+`Item Filter` windows the rows; `Page Filter` hides page numbers past the end so
+the slicer never offers an empty page. The rank must be stable and total, or
+rows fall between pages.
+
+---
+
+## 11. Theme switching — **technique**
+
+A report carries one theme file, but the *rendered* colours need not be fixed.
+Drive them from measures: a disconnected selection table, and colour measures
+consumed by conditional formatting.
+
+```
+Mode = SELECTEDVALUE('Mode'[Mode], "Light")
+Ink  = IF([Mode] = "Dark", "#ECEBEF", "#32373C")
+Page = IF([Mode] = "Dark", "#141317", "#F5F4F6")
+```
+
+Anything that accepts conditional formatting — background, font colour, data
+bars, shape fill — can read these. Costs one measure per token and does not
+reach visual chrome; enough for a document-style page whose surfaces are mostly
+cards, tables and shapes.
+
+The HTML side already has both palettes: a `:root` block and its dark override.
+Generate both, and keep the token names identical so the measures line up.
+
+## Still genuinely expensive
+
+| Wanted | Cost |
 |---|---|
-| Rotated column headers | matrix cannot rotate them |
-| Dark-mode toggle | a report carries one theme at a time |
-| Document flow and pagination | Power BI pages are fixed canvases |
-| Arbitrary web fonts | only fonts installed on the viewer's machine render |
-| Free-form prose paragraphs | every sentence becomes a DAX measure; see 7 |
+| Free-form prose paragraphs | every sentence becomes a DAX measure with its wording frozen in the expression; see 7 |
+| Arbitrary web fonts | only fonts installed on the viewer's machine render; pick from a common set |
 
 ---
 
 ## The rule that makes this work
 
-A generated document that uses only components 1–9 can be rebuilt in Power BI
+A generated document built from components 1–11 can be rebuilt in Power BI
 without redesign. One that reaches outside them produces something the client
-has already seen and approved, and which then cannot be delivered — the worst
-order to discover a constraint in.
+has already seen and approved, and which then costs an unplanned R&D cycle to
+deliver — the worst order to discover a constraint in.
 
-So the constraint belongs in the **generator prompt**, not in a review step
+So the vocabulary belongs in the **generator prompt**, not in a review step
 afterwards.
+
+## Growing the catalogue
+
+Each component is a candidate sub-skill: its HTML form, its Power BI build
+steps, its DAX, its failure modes. Composition then becomes the job — a
+document is a sequence of components, and a Power BI page is the same sequence
+realized differently.
+
+Adding one has a standard: **build it in Power BI first**, then write down what
+you did. A component enters this file with a working method or not at all. That
+is what separates it from the earlier draft, which listed three things as
+impossible because nobody had tried.

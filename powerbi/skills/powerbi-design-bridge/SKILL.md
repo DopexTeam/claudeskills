@@ -13,9 +13,15 @@ The fix is not a translator. It is a **closed component vocabulary**: generate
 only elements that already have a Power BI realization, so the HTML a client
 approves on Tuesday is buildable on Wednesday.
 
-**Read `references/component-catalogue.md` before generating.** Nine components,
-each with an HTML form, a Power BI form, its data contract, and a verdict —
-clean, lossy, or forbidden.
+**Read `references/component-catalogue.md` before generating.** Eleven
+components, each with an HTML form, a Power BI form, its data contract, and a
+verdict — clean, lossy, or needs-a-technique.
+
+**Assume a technique exists.** Power BI's defaults are narrow and its ceiling is
+not. Rotated headers, dark mode and pagination all look impossible and are all
+buildable — pagination is already running in a production report. A component is
+only out of scope once someone has tried and failed, not when the obvious route
+is missing.
 
 **Non-scope:** editing models or M → `powerbi-desktop-engine`. Schema drift →
 `procore-schema-lock`. Number formatting at scale → `powerbi-visual-formatting`.
@@ -72,6 +78,15 @@ survives the crossing.
 
 A free paragraph does not. Each sentence becomes a DAX measure whose wording is
 frozen in the expression, so write two or three, not an essay.
+
+## Components are sub-skills
+
+Each catalogue entry is a candidate skill of its own: HTML form, Power BI build
+steps, DAX, failure modes. The document is then a *composition* of components,
+and the Power BI page is the same composition realized differently.
+
+The bar for adding one: **build it in Power BI first, then write down what you
+did.** A method or nothing.
 
 ## Two documents, two jobs
 
