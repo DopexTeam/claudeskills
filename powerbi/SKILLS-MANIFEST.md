@@ -121,6 +121,8 @@ First of the component sub-skills. Small, one job, built before it was written.
 - Measures, model edits, M → `powerbi-desktop-engine`
 - Page layout and where the visuals sit → the report's author
 
+**Bundled:** `scripts/bookmark_toggle.py` — writes a toggle group from scratch, deriving each target's drill state and filter cards from its own `visual.json`, and repoints the navigator.
+
 **Pairs with:** `powerbi-design-bridge`, which decides that a page needs a summary/detail switch; this builds it.
 
 **Evals:**
@@ -134,3 +136,4 @@ First of the component sub-skills. Small, one job, built before it was written.
 - **v0.1** — plugin created. Three skills, first executable payload in this repository.
 - **v0.2** — added `powerbi-design-bridge`. Four skills. Establishes the component vocabulary that lets an HTML deliverable and a Power BI report share one design decision.
 - **v0.3** — added `powerbi-bookmark-toggle`, the first component sub-skill. Five skills. Sets the pattern: a component is built in a real report first, then written down, and the write-up carries the traps rather than the happy path.
+- **v0.3.1** — `powerbi-bookmark-toggle` gains executable payload: a generator that builds a toggle with no Desktop capture. Two rounds of "verified" turned out to be verified against a subset, which is why the skill now says to diff whole containers and to test through the navigator rather than the Bookmarks pane.
