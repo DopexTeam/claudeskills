@@ -1,6 +1,6 @@
 ---
 name: powerbi-bookmark-toggle
-description: Toggle between two or more Power BI visuals in the same space using a bookmark group and a bookmark navigator, by editing PBIR directly. Use this whenever a page needs a summary/detail switch, tabbed views, or any control that swaps which visual is shown without changing the page; whenever a duplicated page's bookmark navigator does nothing; or whenever bookmarks need to be created or repointed in a .pbip without clicking through Desktop. Covers the display-hidden mechanism, remapping bookmarks between pages, and the second navigator reference that is easy to miss.
+description: Create or repair a Power BI visual toggle — a bookmark group plus a bookmark navigator that swaps which visual is shown — by writing PBIR directly, with no clicking through Desktop. Use this whenever a page needs a summary/detail switch or tabbed views, whenever a duplicated page's bookmark navigator does nothing, or whenever a toggle switches visibility but shows the wrong drill level or resets the wrong filters. Covers the display-hidden mechanism, the drill and filter state a bookmark must carry and where each one lives, remapping bookmarks between pages, and the navigator's second reference.
 ---
 
 # Toggling visuals with bookmarks
@@ -48,15 +48,57 @@ Two bookmarks, each hiding the other's visual, is the whole toggle.
   was captured on. Harmless until the bookmark is reused elsewhere, then
   baffling.
 
-## Remap, never reconstruct
+## Building one from scratch
 
-To give a duplicated page its own toggle, copy the working bookmarks and swap
-identities. Do not write fresh ones.
+```bash
+python scripts/bookmark_toggle.py "<project>" --page <pageId> --group "Views" \
+    --view "Summary=<visualId>" --view "Breakdown=<visualId>" \
+    --navigator <visualId> --apply
+```
 
-A bookmark carries `filters`, `activeProjections`, `expansionStates` and
-per-visual `objects` alongside the visibility flag. Anything omitted changes
-behaviour silently *when the bookmark is applied* — not when it is written — so
-the mistake surfaces later, in use.
+A bookmark is far more than the visibility flag, and everything it carries is
+readable off the targets' own `visual.json` — so a from-scratch bookmark can
+match a Desktop-captured one without capturing anything.
+
+| Block | Lives in the bookmark at | Derived from |
+|---|---|---|
+| `display` | `singleVisual.display` | the view being written |
+| drill level | `singleVisual.activeProjections` | projections whose `active` is not `false` |
+| expand-all / pinning | `singleVisual.expansionStates` | copies across; `root: {}` becomes `{"identityValues": []}` |
+| filter cards | **`filters.byExpr`, beside `singleVisual`** | `filterConfig.filters`, renaming `field`→`expression`, `howCreated: "User"`→`1` |
+
+Measured against a Desktop-authored equivalent: 8.2 KB versus 19.5 KB, with
+every named filter card byte-identical. The remainder is the page's *untargeted*
+visuals, which `applyOnlyToTargetVisuals` excludes from application anyway.
+
+### What goes wrong if a block is dropped
+
+**Drill state is not cosmetic.** A matrix set to "go to the next level" differs
+from one set to "expand all down one level" only in `activeProjections` and
+`expansionStates`. A bookmark omitting them leaves each matrix wherever the user
+last drilled it, so the toggle switches visibility correctly and shows the wrong
+view — which reads as a data problem, not a bookmark problem.
+
+**Empty filter cards are not inert.** Most cards carry no `filter` key. That
+records *the card exists and holds no selection*, and applying it **clears** a
+filter the user set. Dropping the block is therefore not the conservative
+choice; it is a different behaviour, and not the one Desktop produces.
+
+**`filters` sits beside `singleVisual`, not inside it.** This is the one that
+gets missed, and it gets missed twice: once when generating, and again when
+verifying, because a diff loop written over `singleVisual` keys reports parity
+across a subset and looks like parity overall. Compare whole containers.
+
+Desktop also writes one empty Categorical card on the drilled hierarchy's top
+level — a drill slot absent from `filterConfig`. It carries a fresh id in every
+capture, so the id means nothing and generating one is as faithful as copying.
+
+## Remap when carrying an existing toggle across
+
+To move a working toggle onto a duplicated page, copy the bookmarks and swap
+identities rather than regenerating. Generating reproduces the state the report
+is *saved* with; a captured bookmark may hold something deliberate that was
+never saved to the visual, and you cannot tell which by looking.
 
 Remapping is a text substitution on the raw JSON, deliberately:
 
@@ -120,5 +162,14 @@ leaked = [v for v in SRC_IDS if v in open(new_bookmark).read()]
 A leaked id is a bookmark that applies cleanly to the *wrong page's* visuals —
 the exact symptom of a duplicated page whose toggle "does nothing".
 
-Finally reopen in Desktop and click it. The file being valid is not the same as
-the toggle behaving.
+Then diff whole containers against a known-good bookmark, if the report has one:
+
+```python
+gen[vid] == cap[vid]          # the container, not gen[vid]["singleVisual"]
+```
+
+Finally reopen in Desktop and click it **through the navigator**. A bookmark
+applied from the Bookmarks pane exercises the bookmark; only the navigator
+exercises the wiring. Passing `pbircheck`, and even applying correctly from the
+pane, says nothing about whether the navigator points at the group you just
+wrote.
