@@ -202,6 +202,27 @@ a space, that is the cause -- report the path you installed this skill to.
     Ok "mast.exe already current"
 }
 
+# ---------------------------------------------------- PBIR schemas from Desktop
+Step "PBIR schemas"
+
+# Desktop embeds JSON Schemas for report documents in ClientResources.dll.
+# They are NOT the contract it enforces on files it writes -- 2385 of 2412 files
+# in five hand-authored reports deviate from them -- so pbircheck treats them as
+# advisory. They are extracted anyway because they are the best available
+# reference for what properties and enum values exist when GENERATING PBIR, and
+# because the report theme schema is the machine-readable form of a design
+# system. Not redistributed; gitignored, same as the mashup engine.
+$px = & $py.Source (Join-Path $scripts "pbirschemas.py") --extract 2>&1
+if ($LASTEXITCODE -eq 0) {
+    Ok (($px | Select-Object -First 1) -replace '^\s+','')
+} else {
+    Bad "PBIR schema extraction failed:`n$px" @"
+Non-fatal for the M tooling, but pbircheck --schema and any PBIR generation
+reference will be unavailable. Most likely a Power BI Desktop upgrade renamed
+the embedded resources; check scripts/pbirschemas.py PREFIX and RESOURCE.
+"@
+}
+
 # ------------------------------------------------------------------- data root
 Step "Data root"
 

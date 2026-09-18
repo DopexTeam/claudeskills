@@ -86,6 +86,15 @@ Structure a generator must model, measured across five hand-authored reports (24
 
 `pbircheck` is a pre-filter, not the authority — the authority is Desktop opening the file. It catches what a generator gets wrong: dangling `parentGroupName`, duplicate container names, non-numeric positions, containers that are both visual and group, group cycles, bookmarks naming visuals that no longer exist.
 
+### The shipped schemas are a reference, not a gate
+
+Desktop embeds JSON Schemas for these documents in `Microsoft.PowerBI.ClientResources.dll`; `pbirschemas.py --extract` pulls all 13 out, and `setup.ps1` does it for you. They cover structures the *published* schemas predate — `visualGroup`, `parentGroupName`, `isHidden` — and they work offline.
+
+**They are not the contract Desktop enforces on what it writes.** Measured across five hand-authored reports: **2385 of 2412 files deviate**, in 17 classes — a `$schema` const pinned to one version while real files span five, `filter.Version` pinned to `2` while files carry `1`, and properties Desktop emits that the schema does not declare (`width`, `showSetAlertButton`, `showFollowVisualButton`) under `additionalProperties: false`.
+
+So `pbircheck --schema` is **advisory and never changes the exit code**. A gate that fires on known-good input is worse than no gate. Use the schemas the other way round — as the reference for what properties and enum values exist when *generating* PBIR. `reportthemeschema` is the largest at 914 KB and is the machine-readable form of a design system: `dataColors`, `foreground`, `accent`, `firstLevelElements`, and the per-visual formatting surface.
+
+
 ## Gates, and gates that lie
 
 A gate that can report an unearned pass is worse than no gate. Two real examples:

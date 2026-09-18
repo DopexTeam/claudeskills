@@ -26,13 +26,21 @@ What it checks -- each one a way a generated report breaks:
   no cycles         a group cannot contain itself transitively
   bookmarks         every visual a bookmark names still exists
 
-`--schema` additionally validates each file against its declared `$schema`,
-which needs the `jsonschema` package. Everything else here is stdlib only,
-because that check cannot be complete: Microsoft publishes these schemas but
-publication lags Desktop. Of the five visualContainer versions in this corpus,
-2.8.0 and 2.9.0 are published (2027 files) while 2.10.0, 2.11.0 and 2.12.0 are
-not (208 files). Those fall back to the newest published version BELOW them and
-say so, rather than silently validating against the wrong contract.
+`--schema` is ADVISORY and never changes the exit code. Power BI Desktop
+embeds JSON Schemas for these documents and `pbirschemas.py` extracts them, but
+measurement says they are not the contract Desktop enforces on what it writes:
+2385 of 2412 files in five hand-authored reports fail against them, in 17
+classes. The big ones are a `$schema` const pinned to one version while real
+files span five, `filter.Version` pinned to 2 while files carry 1, and
+properties Desktop emits that the schema does not declare (`width`,
+`showSetAlertButton`, `showFollowVisualButton`) under
+`additionalProperties: false`.
+
+A gate that fires on known-good input is worse than no gate, so this does not
+gate. It is useful for the opposite direction -- as a REFERENCE when generating
+PBIR, telling you which properties and enum values exist -- and as a way to see
+where a document departs from the shipped schema. The structural checks above
+are the part that gates.
 """
 import os
 import re
@@ -40,6 +48,10 @@ import sys
 import json
 import glob
 import collections
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import pbirschemas
+import jsonschema_min
 
 SCHEMA_RE = re.compile(r"definition/([A-Za-z]+)/([0-9.]+)/schema\.json")
 
@@ -154,6 +166,38 @@ def check(d):
     return problems, stats, versions, len(docs)
 
 
+KIND_OF_FILE = [
+    (re.compile(r"visuals/[^/]+/visual\.json$"), "visualcontainer"),
+    (re.compile(r"visuals/[^/]+/mobileState\.json$"), "visualcontainermobilestate"),
+    (re.compile(r"pages/[^/]+/page\.json$"), "page"),
+    (re.compile(r"pages/pages\.json$"), "pagesmetadata"),
+    (re.compile(r"bookmarks/.*\.bookmark\.json$"), "bookmark"),
+    (re.compile(r"bookmarks/bookmarks\.json$"), "bookmarkmetadata"),
+    (re.compile(r"^report\.json$"), "report"),
+    (re.compile(r"^reportExtension\.json$"), "reportextension"),
+    (re.compile(r"^version\.json$"), "versionmetadata"),
+]
+
+
+def schema_check(d):
+    """Validate every file against the schema Desktop itself enforces."""
+    if not pbirschemas.available():
+        return None, "no schemas cached -- run: python pbirschemas.py --extract"
+    reg = pbirschemas.load_all()
+    docs, _ = load(d)
+    problems, checked = [], collections.Counter()
+    for rel, doc in sorted(docs.items()):
+        kind = next((k for rx, k in KIND_OF_FILE if rx.search(rel)), None)
+        if kind is None or kind not in reg:
+            checked["unmapped"] += 1
+            continue
+        errs = jsonschema_min.validate(doc, reg[kind], registry=reg)
+        checked[kind] += 1
+        for where, what in errs[:4]:
+            problems.append(("schema:" + kind, rel, "%s %s" % (where, what)))
+    return (problems, checked), None
+
+
 def main(argv):
     d = definition_dir(argv[1])
     problems, stats, versions, n = check(d)
@@ -169,6 +213,28 @@ def main(argv):
             print("    %-16s %-46s %s" % (kind, where[:46], what[:70]))
         return 1
     print("  OK -- structure and references consistent")
+
+    if "--schema" in argv:
+        res, err = schema_check(d)
+        if err:
+            print("  SCHEMA: %s" % err)
+            return 1
+        sproblems, checked = res
+        print("  schema-checked %d files (%s)"
+              % (sum(v for k, v in checked.items() if k != "unmapped"),
+                 ", ".join("%s x%d" % kv for kv in sorted(checked.items()) if kv[0] != "unmapped")))
+        if checked["unmapped"]:
+            print("    %d file(s) had no governing schema and were skipped" % checked["unmapped"])
+        if sproblems:
+            by = collections.Counter((k, w.split(" ", 1)[-1][:52]) for k, _, w in sproblems)
+            print("  ADVISORY: %d deviation(s) from the shipped schemas, %d class(es)."
+                  % (len(sproblems), len(by)))
+            print("  These do NOT fail the check -- the shipped schemas reject"
+                  " hand-authored reports too.")
+            for (kind, what), n in by.most_common(10):
+                print("    %-22s %-52s x%d" % (kind[:22], what, n))
+        else:
+            print("  no deviation from the shipped schemas")
     return 0
 
 

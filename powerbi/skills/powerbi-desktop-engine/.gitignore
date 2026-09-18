@@ -17,3 +17,7 @@ data/
 
 # Machine-specific: where setup.ps1 found the local Power BI Desktop install.
 scripts/pbi_paths.json
+
+# Schemas extracted from the local Desktop install by setup.ps1.
+# Microsoft's content; not ours to redistribute.
+scripts/pbir-schemas/
