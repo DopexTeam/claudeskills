@@ -214,12 +214,48 @@ def main(argv):
         return 1
     print("  OK -- structure and references consistent")
 
-    if "--schema" in argv:
+    want_schema = "--schema" in argv
+    snapshot = None
+    for i, a in enumerate(argv):
+        if a == "--schema-baseline" and i + 1 < len(argv):
+            snapshot, want_schema = argv[i + 1], True
+
+    if want_schema:
         res, err = schema_check(d)
         if err:
             print("  SCHEMA: %s" % err)
             return 1
         sproblems, checked = res
+
+        if snapshot:
+            # The shipped schemas over-report on hand-authored reports, so the
+            # absolute count is noise. The DELTA is not: an error an edit
+            # introduces is one Desktop rejects on open, near word for word.
+            # Putting `sortDefinition` on `visual` instead of on `visual.query`
+            # gave "$.visual unexpected property 'sortDefinition'" here, and
+            # "An additional property 'sortDefinition' was included in the
+            # /visual property" from Desktop, which refused to open the report.
+            now = sorted("%s|%s|%s" % p for p in sproblems)
+            if os.path.exists(snapshot):
+                was = set(json.load(open(snapshot, encoding="utf-8")))
+                new = [p for p in now if p not in was]
+                if new:
+                    print("  SCHEMA REGRESSION: %d error(s) introduced since the "
+                          "baseline" % len(new))
+                    for p in new[:15]:
+                        kind, where, what = p.split("|", 2)
+                        print("    %-18s %-40s %s" % (kind[:18], where[:40], what[:60]))
+                    return 1
+                print("  no new schema errors against %s"
+                      % os.path.basename(snapshot))
+            else:
+                with open(snapshot, "w", encoding="utf-8") as fh:
+                    json.dump(now, fh, indent=1)
+                print("  recorded %d pre-existing deviation(s) -> %s"
+                      % (len(now), snapshot))
+                print("  re-run after an edit; only NEW errors fail.")
+            return 0
+
         print("  schema-checked %d files (%s)"
               % (sum(v for k, v in checked.items() if k != "unmapped"),
                  ", ".join("%s x%d" % kv for kv in sorted(checked.items()) if kv[0] != "unmapped")))

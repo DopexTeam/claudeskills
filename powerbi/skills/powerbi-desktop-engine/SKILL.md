@@ -92,7 +92,28 @@ Desktop embeds JSON Schemas for these documents in `Microsoft.PowerBI.ClientReso
 
 **They are not the contract Desktop enforces on what it writes.** Measured across five hand-authored reports: **2385 of 2412 files deviate**, in 17 classes — a `$schema` const pinned to one version while real files span five, `filter.Version` pinned to `2` while files carry `1`, and properties Desktop emits that the schema does not declare (`width`, `showSetAlertButton`, `showFollowVisualButton`) under `additionalProperties: false`.
 
-So `pbircheck --schema` is **advisory and never changes the exit code**. A gate that fires on known-good input is worse than no gate. Use the schemas the other way round — as the reference for what properties and enum values exist when *generating* PBIR. `reportthemeschema` is the largest at 914 KB and is the machine-readable form of a design system: `dataColors`, `foreground`, `accent`, `firstLevelElements`, and the per-visual formatting surface.
+So `pbircheck --schema` is **advisory and never changes the exit code**. A gate that fires on known-good input is worse than no gate.
+
+**The delta, however, is a real gate.** The absolute count is noise; an error an *edit* introduces is one Desktop rejects on open.
+
+```bash
+python pbircheck.py "<project>" --schema-baseline "<project>/.pbir-schema-baseline.json"
+```
+
+First run records the pre-existing deviations (166 on a five-page report). Every run after fails, with exit 1, on errors not in that set. Measured: placing `sortDefinition` on `visual` instead of on `visual.query` produced
+
+```
+    pbircheck   $.visual unexpected property 'sortDefinition'
+    Desktop     An additional property 'sortDefinition' was included in
+                the /visual property of visuals/<id>/visual.json
+```
+
+Desktop refused to open the report. The same edit passes every structural check
+in this file, because nothing is dangling — the property is simply in the wrong
+object. **Never place a property by inference from a sibling.** Find the
+definition that declares it: `SortDefinition` is reachable only from
+`Query.66be47a9`, whose siblings are `queryState`, `options` and
+`isDrillDisabled`, which says exactly where it goes. Use the schemas the other way round — as the reference for what properties and enum values exist when *generating* PBIR. `reportthemeschema` is the largest at 914 KB and is the machine-readable form of a design system: `dataColors`, `foreground`, `accent`, `firstLevelElements`, and the per-visual formatting surface.
 
 
 ## Proving a report edit by the query it produces

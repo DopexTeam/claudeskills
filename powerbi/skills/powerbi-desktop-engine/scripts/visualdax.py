@@ -146,18 +146,25 @@ def query(d, page, vid):
     state = visual["visual"].get("query", {}).get("queryState", {})
 
     groups, measures, used = [], [], set()
-    for role in ("Rows", "Columns", "Category", "Series", "Y", "X"):
-        for p in state.get(role, {}).get("projections", []):
-            # `active: false` is a level the visual has drilled PAST -- it is
-            # not part of the question the visual is currently asking
-            if p.get("active", True):
-                r = ref(p["field"])
-                if r not in groups and "Measure" not in p["field"]:
-                    groups.append(r)
-    for role in ("Values", "Y", "Size", "Tooltips"):
-        for p in state.get(role, {}).get("projections", []):
-            if "Measure" in p["field"] or "Aggregation" in p["field"]:
-                measures.append(('"%s"' % alias(p["field"], used), ref(p["field"])))
+    # Do NOT drive this off a list of role names. A table (`tableEx`) puts
+    # EVERY field in `Values`, including the columns it groups by, so a role
+    # allowlist drops them and the query returns one row where the visual shows
+    # many -- silently, with a plausible-looking result. What separates a
+    # grouping from a measure is the FIELD, not the role it sits in.
+    for role, spec in state.items():
+        for p in spec.get("projections", []):
+            field = p["field"]
+            aggregated = "Measure" in field or "Aggregation" in field
+            if aggregated:
+                measures.append(('"%s"' % alias(field, used), ref(field)))
+            elif role != "Tooltips":
+                # a tooltip column would change the grain without appearing
+                # in the visual, so it groups nothing
+                #
+                # `active: false` is a level the visual has drilled PAST and is
+                # not part of the question it is currently asking
+                if p.get("active", True) and ref(field) not in groups:
+                    groups.append(ref(field))
 
     where, skipped = filters(d, page, visual)
     parts = groups + where + ["%s, %s" % m for m in measures]
