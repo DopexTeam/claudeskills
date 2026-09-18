@@ -70,6 +70,22 @@ Three things it must get right, each learned by getting it wrong:
 
 **Never truncate `expressions.tmdl` to EOF.** Desktop reorders expressions on save, so cutting from a known expression to the end deletes whatever it moved past.
 
+## Checking a report definition (PBIR)
+
+JSON parsing is not PBIR validation, exactly as TMDL parsing is not M validation. A report whose every file is well-formed JSON can still be one Desktop refuses to open, because what matters is whether the pieces REFER to each other correctly.
+
+```bash
+python pbircheck.py "<project folder>"
+```
+
+Structure a generator must model, measured across five hand-authored reports (2412 files):
+
+- **PBIR is a containment hierarchy, not a flat list.** 387 of 2235 containers are `visualGroup`, not `visual`, and **1572 sit inside one**. Code assuming `visual.visualType` is wrong for 17% of files. Groups nest via `parentGroupName`, scoped per page, and can be `isHidden`.
+- **Schema versions are mixed within one report.** Five `visualContainer` versions appear across this corpus, and Butler-Cohen alone uses 2.11.0 and 2.12.0 side by side.
+- **Microsoft publishes these schemas, but publication lags Desktop.** 2.8.0 and 2.9.0 resolve; 2.10.0, 2.11.0 and 2.12.0 return 404. Validate against a version you did not declare only if you say so.
+
+`pbircheck` is a pre-filter, not the authority — the authority is Desktop opening the file. It catches what a generator gets wrong: dangling `parentGroupName`, duplicate container names, non-numeric positions, containers that are both visual and group, group cycles, bookmarks naming visuals that no longer exist.
+
 ## Gates, and gates that lie
 
 A gate that can report an unearned pass is worse than no gate. Two real examples:
