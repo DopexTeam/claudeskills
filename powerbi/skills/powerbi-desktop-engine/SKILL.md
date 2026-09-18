@@ -142,6 +142,45 @@ than scoring a recording with no `UserAction_Refresh` after the perturbation.
 Performance Analyzer logs no User Action for applying a bookmark, so its absence
 is not evidence the bookmark was not applied.
 
+### Headless: derive the query instead of recording it
+
+A capture costs one human interaction per visual, which does not scale to
+validating a component library — a trace per component per interaction is
+infeasible, and it is also the wrong unit of work.
+
+```bash
+python visualdax.py "<project>" --page <pageId> --visual <visualId>
+```
+
+This reads the query out of PBIR: active projections become the groupings,
+`filterConfig.filters` from **report, page and visual scope** become `TREATAS`,
+and the `Values` role becomes the measures. Execute it through the modeling MCP
+and compare rows. Nothing is clicked and nothing needs to be open but the model.
+
+It deliberately does **not** reproduce Desktop's text. Desktop wraps the real
+question in row-window `TOPN`s, a `SUBSTITUTEWITHINDEX` column axis and
+`ROLLUPADDISSUBTOTAL` subtotal markers — presentation machinery that varies with
+the visual's size and scroll position. Underneath is `SUMMARIZECOLUMNS` over the
+active groupings under the active filters, which is what correctness rests on.
+
+**So the division of labour is: record once per component TYPE to calibrate,
+then run headless per instance.** The expensive instrument earns its cost by
+validating the cheap one, not by being run at scale.
+
+Two traps that make generated DAX wrong rather than failing:
+
+- **PBIR quotes strings the way M does** — `'Evaluation - Vendor'`. DAX reads
+  single quotes as a *table* name, so passing the literal through unchanged
+  either errors or silently resolves against something else. Booleans arrive
+  lowercase and DAX wants `TRUE`.
+- **Filters live at three scopes.** Reading only the visual's own
+  `filterConfig` returns different numbers from the report, quietly. A card with
+  no `filter` key is an empty card and restricts nothing — meaningful in a
+  bookmark, where it means "cleared", but not a filter.
+
+A filter the generator cannot express must be reported, never skipped: numbers
+filtered differently from the report are the one failure this must not hide.
+
 **What this does not cover.** Identical DAX means identical data, not identical
 appearance — colours, fonts and conditional formatting produce the same
 statement. A visual that is hidden issues no query and is reported SILENT, not

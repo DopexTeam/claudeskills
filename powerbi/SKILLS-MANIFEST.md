@@ -33,7 +33,7 @@ Every skill in `dev-standards` is prose. These three carry **executable payload*
 - Writing DAX, or judging whether a measure is correct → nothing here; see `dev-standards/verification-discipline` for how to check
 - Report layout and visual placement → nothing here
 
-**Bundled:** `scripts/` — `mcompile.py` + `compilecheck.py` (compile), `astm.py` + `mast/` (parse), `mbody.py` (TMDL), `mlint.py` + `lintdir.py` (lint), `watch_refresh.ps1` (refresh), `pbircheck.py` + `pbirschemas.py` (PBIR), `paquery.py` (per-visual DAX from a Performance Analyzer recording), `pbidesktop.py` (library resolution)
+**Bundled:** `scripts/` — `mcompile.py` + `compilecheck.py` (compile), `astm.py` + `mast/` (parse), `mbody.py` (TMDL), `mlint.py` + `lintdir.py` (lint), `watch_refresh.ps1` (refresh), `pbircheck.py` + `pbirschemas.py` (PBIR), `paquery.py` (per-visual DAX from a Performance Analyzer recording), `visualdax.py` (the same query derived from PBIR, headless), `pbidesktop.py` (library resolution)
 
 **Pairs with:** `procore-schema-lock`, which depends on it and resolves it via `scripts/engine.py`. Ship together.
 
@@ -136,5 +136,6 @@ First of the component sub-skills. Small, one job, built before it was written.
 - **v0.1** — plugin created. Three skills, first executable payload in this repository.
 - **v0.2** — added `powerbi-design-bridge`. Four skills. Establishes the component vocabulary that lets an HTML deliverable and a Power BI report share one design decision.
 - **v0.3** — added `powerbi-bookmark-toggle`, the first component sub-skill. Five skills. Sets the pattern: a component is built in a real report first, then written down, and the write-up carries the traps rather than the happy path.
+- **v0.3.3** — `visualdax.py` makes the query check headless: derived from PBIR rather than recorded, so validation runs per instance without Desktop. Performance Analyzer's job narrows to calibrating once per component type. Its first headless run found a live report's heat map returning the same value for all 16 vendors.
 - **v0.3.2** — `powerbi-desktop-engine` gains `paquery.py`. A report edit is now provable by the statement each visual issues rather than by looking at two renders: Performance Analyzer records the DAX, and the diff is the judge. The modeling MCP's trace cannot substitute — it sees only its own connection.
 - **v0.3.1** — `powerbi-bookmark-toggle` gains executable payload: a generator that builds a toggle with no Desktop capture. Two rounds of "verified" turned out to be verified against a subset, which is why the skill now says to diff whole containers and to test through the navigator rather than the Bookmarks pane.
