@@ -235,24 +235,39 @@ def main(argv):
             # gave "$.visual unexpected property 'sortDefinition'" here, and
             # "An additional property 'sortDefinition' was included in the
             # /visual property" from Desktop, which refused to open the report.
-            now = sorted("%s|%s|%s" % p for p in sproblems)
+            # Key on the error CLASS, not on the file. Keying per file means
+            # every NEW file trips the gate carrying only the deviations that
+            # every existing file already has -- a gate that cries wolf on
+            # ordinary work gets switched off, which is worse than no gate.
+            # Array indices vary between files, so they normalise out too.
+            def klass(p):
+                kind, _where, what = p
+                return "%s|%s" % (kind, re.sub(r"\[\d+\]", "[*]", what))
+
+            now_classes = sorted({klass(p) for p in sproblems})
+            now_full = sorted("%s|%s|%s" % p for p in sproblems)
             if os.path.exists(snapshot):
-                was = set(json.load(open(snapshot, encoding="utf-8")))
-                new = [p for p in now if p not in was]
-                if new:
-                    print("  SCHEMA REGRESSION: %d error(s) introduced since the "
-                          "baseline" % len(new))
-                    for p in new[:15]:
-                        kind, where, what = p.split("|", 2)
-                        print("    %-18s %-40s %s" % (kind[:18], where[:40], what[:60]))
+                saved = json.load(open(snapshot, encoding="utf-8"))
+                was_classes = set(saved.get("classes", saved if isinstance(saved, list) else []))
+                was_full = set(saved.get("entries", []))
+                new_classes = [c for c in now_classes if c not in was_classes]
+                if new_classes:
+                    print("  SCHEMA REGRESSION: %d NEW error class(es)" % len(new_classes))
+                    for c in new_classes[:15]:
+                        kind, what = c.split("|", 1)
+                        example = next((p[1] for p in sproblems if klass(p) == c), "")
+                        print("    %-18s %-46s  e.g. %s" % (kind[:18], what[:46], example[:40]))
                     return 1
-                print("  no new schema errors against %s"
-                      % os.path.basename(snapshot))
+                spread = [p for p in now_full if p not in was_full]
+                print("  no new schema error classes against %s%s"
+                      % (os.path.basename(snapshot),
+                         "  (%d known-class instance(s) on new/changed files)"
+                         % len(spread) if spread else ""))
             else:
                 with open(snapshot, "w", encoding="utf-8") as fh:
-                    json.dump(now, fh, indent=1)
-                print("  recorded %d pre-existing deviation(s) -> %s"
-                      % (len(now), snapshot))
+                    json.dump({"classes": now_classes, "entries": now_full}, fh, indent=1)
+                print("  recorded %d deviation(s) in %d class(es) -> %s"
+                      % (len(now_full), len(now_classes), snapshot))
                 print("  re-run after an edit; only NEW errors fail.")
             return 0
 
