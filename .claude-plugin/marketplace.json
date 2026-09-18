@@ -14,6 +14,11 @@
       "name": "multitenant",
       "source": "./multitenant",
       "description": "Tenant-isolation enforcement (SET LOCAL guard + cross-tenant test template). Install at project scope on multi-tenant projects only."
+    },
+    {
+      "name": "powerbi",
+      "source": "./powerbi",
+      "description": "Power BI authoring skills with executable tooling: M compilation and parsing via Power BI Desktop's own engine, condition-based refresh waiting, Procore Delta Sharing schema-drift protection, and visual formatting at scale. Install at user scope on machines that author PBIP reports; requires Power BI Desktop locally."
     }
   ]
 }

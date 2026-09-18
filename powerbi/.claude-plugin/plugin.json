@@ -1,0 +1,9 @@
+{
+  "name": "powerbi",
+  "version": "0.1.0",
+  "description": "Power BI authoring skills with executable tooling: compile and parse M with Power BI Desktop's own engine, wait on refreshes with a real condition, protect Procore Delta Sharing reports from schema drift, and format visuals at scale. Install at user scope on machines that author PBIP reports; requires Power BI Desktop locally.",
+  "author": {
+    "name": "David McDonnel, Jr.",
+    "email": "davidjr@dopex.co"
+  }
+}

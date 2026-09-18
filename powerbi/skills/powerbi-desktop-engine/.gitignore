@@ -1,0 +1,19 @@
+# Microsoft's own mashup engine and the parser built against it. Copied out of
+# the local Power BI Desktop install by setup; not ours to redistribute.
+scripts/mast/Microsoft.MashupEngine.dll
+scripts/mast/mast.exe
+
+__pycache__/
+*.pyc
+
+# Client data never belongs in this folder -- it lives under PROCORE_LOCK_DATA,
+# which defaults to ~/.procore-schema-lock. These entries are a backstop in case
+# someone points it here anyway.
+scripts/calcdep/
+scripts/required/
+scripts/derived/
+scripts/backup/
+data/
+
+# Machine-specific: where setup.ps1 found the local Power BI Desktop install.
+scripts/pbi_paths.json

@@ -1,0 +1,10 @@
+# Microsoft's own mashup engine, copied out of the Power BI Desktop install --
+# not ours to redistribute, and 14MB. Copy it next to MAst.cs from:
+#   C:\Program Files\Microsoft Power BI Desktop\bin\Microsoft.MashupEngine.dll
+Microsoft.MashupEngine.dll
+
+# built artefact and scratch I/O
+mast.exe
+in.txt
+out.json
+err.txt
