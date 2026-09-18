@@ -1,6 +1,6 @@
 ---
 name: powerbi-desktop-engine
-description: Use Power BI Desktop's own libraries to compile and parse M, read M out of TMDL, and wait on a refresh with a real condition instead of a sleep. Use this whenever you generate or edit M / Power Query in a PBIP model and need to know it is valid before writing it to a report, whenever you need to parse M into a syntax tree rather than regex it, whenever you must wait for a Desktop refresh to finish or tell a genuine re-run from cached data, or whenever a tool must locate Microsoft.MashupEngine.dll or the ADOMD client. Also covers why TMDL parsing succeeding does not mean the model will open.
+description: Use Power BI Desktop's own libraries to compile and parse M, read M out of TMDL, validate a report definition, wait on a refresh with a real condition instead of a sleep, and prove a report edit by the DAX each visual issues. Use this whenever you generate or edit M / Power Query in a PBIP model and need to know it is valid before writing it to a report, whenever you need to parse M into a syntax tree rather than regex it, whenever you must wait for a Desktop refresh to finish or tell a genuine re-run from cached data, whenever a PBIR edit needs verifying by something better than opening Desktop and looking, or whenever a tool must locate Microsoft.MashupEngine.dll or the ADOMD client. Also covers why TMDL parsing succeeding does not mean the model will open.
 ---
 
 # Power BI Desktop's engine, borrowed
@@ -94,6 +94,59 @@ Desktop embeds JSON Schemas for these documents in `Microsoft.PowerBI.ClientReso
 
 So `pbircheck --schema` is **advisory and never changes the exit code**. A gate that fires on known-good input is worse than no gate. Use the schemas the other way round — as the reference for what properties and enum values exist when *generating* PBIR. `reportthemeschema` is the largest at 914 KB and is the machine-readable form of a design system: `dataColors`, `foreground`, `accent`, `firstLevelElements`, and the per-visual formatting surface.
 
+
+## Proving a report edit by the query it produces
+
+`pbircheck` says a report is well-formed. It cannot say the edit did what was
+intended — for that, someone normally opens Desktop and looks, which is not
+evidence anyone can re-run.
+
+A visual's content **is** its DAX query, so the question has an exact answer:
+capture the statement each visual issues, and diff the text.
+
+```bash
+python paquery.py <baseline.json>                      # per-visual DAX
+python paquery.py <baseline.json> --compare <after.json>
+```
+
+The recording comes from Desktop's **Performance Analyzer** (View → Performance
+Analyzer → Start recording → Export). `Execute DAX Query` carries
+`metrics.QueryText`; the visual is found by walking `parentId` up to an id whose
+first segment is a 20-hex visual name.
+
+**The modeling MCP's `trace_operations` cannot do this.** Even with
+`filterCurrentSessionOnly: false` it captures only its own connection — a page
+switch in Desktop records zero events, while a query issued over the MCP
+connection records fine. Desktop's UI session is not visible to it.
+
+### The protocol, and why each step is load-bearing
+
+```
+1. Refresh visuals                       baseline: the designed query
+2. drill or filter away from that state  forces a real divergence
+3. apply the edit under test
+4. Refresh visuals                       the state the edit left behind
+5. diff against the baseline             must be identical
+```
+
+**Without step 2** the recording is silent, because a bookmark asserting the
+state a visual is already in makes it re-query nothing. Silence is consistent
+with a correct edit *and* with one Desktop ignored, so it scores neither.
+
+**Without step 4** the evidence goes missing exactly when the edit works:
+Desktop serves an already-rendered state from cache, so a correct restore emits
+no query and the perturbed statement stays the last one recorded — which reads
+as a mismatch and blames a working edit. `paquery` returns INCONCLUSIVE rather
+than scoring a recording with no `UserAction_Refresh` after the perturbation.
+
+Performance Analyzer logs no User Action for applying a bookmark, so its absence
+is not evidence the bookmark was not applied.
+
+**What this does not cover.** Identical DAX means identical data, not identical
+appearance — colours, fonts and conditional formatting produce the same
+statement. A visual that is hidden issues no query and is reported SILENT, not
+passed. And a human still has to perform the clicks; what the harness removes is
+the human as *judge*, not as actuator.
 
 ## Gates, and gates that lie
 

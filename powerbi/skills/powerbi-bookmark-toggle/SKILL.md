@@ -168,8 +168,32 @@ Then diff whole containers against a known-good bookmark, if the report has one:
 gen[vid] == cap[vid]          # the container, not gen[vid]["singleVisual"]
 ```
 
-Finally reopen in Desktop and click it **through the navigator**. A bookmark
+Then reopen in Desktop and click it **through the navigator**. A bookmark
 applied from the Bookmarks pane exercises the bookmark; only the navigator
 exercises the wiring. Passing `pbircheck`, and even applying correctly from the
-pane, says nothing about whether the navigator points at the group you just
-wrote.
+pane, says nothing about whether the navigator points at the group you wrote.
+
+### Prove it by the query, not by looking
+
+Eyeballing two renders is the weakest link in this whole procedure. A toggle's
+correctness is exactly "does the visual issue the statement it issues in its
+designed state", which is diffable — see *Proving a report edit by the query it
+produces* in `powerbi-desktop-engine`:
+
+```
+Refresh visuals -> drill the matrix off its level -> click the bookmark
+-> Refresh visuals -> export -> paquery.py baseline.json --compare after.json
+```
+
+```bash
+python ../powerbi-desktop-engine/scripts/paquery.py base.json --compare after.json
+```
+
+Measured on this component: after drilling away and applying a generated
+bookmark, the restored statement was byte-identical to the designed-state
+baseline at 1,601 characters.
+
+The perturbation is what makes the test mean anything — a toggle recorded from a
+clean state emits no query at all, because the bookmark asserts the state the
+visual is already in. The hidden visual is reported SILENT rather than passed,
+since a hidden visual issues no query.
