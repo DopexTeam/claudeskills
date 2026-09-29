@@ -131,11 +131,38 @@ First of the component sub-skills. Small, one job, built before it was written.
 
 ---
 
+### 1.6 `powerbi-date-dimension` — component
+
+A model component rather than a report one. Same rule as 1.5: built and run
+before it was written.
+
+**Description (paste-ready):** see the skill's own frontmatter.
+
+**Owns:** the generated date dimension and its settings. The `Time Window` calculation group and the rule that a window looking back from a date clips itself to today. The gates on replacing an existing date table. What adding a calculation group does to a model that had none. Relating a fact table to the date dimension: timestamp joins, date roles, and testing a date that has not happened.
+
+**Non-scope:**
+- Compiling M, reading TMDL, waiting on a refresh → `powerbi-desktop-engine`
+- Number formatting, and the `Number Formatting` calculation group → `powerbi-visual-formatting`
+- Whether a measure is correct → nothing here; a window moves the dates a measure is evaluated over and takes no view on the measure
+- Fact-table dates: which column to relate, or stripping a time portion → the model's author
+- Where a slicer sits on the page → the report's author
+
+**Bundled:** `assets/` — the query, both tables as TMDL, and a TMDL-view script. `scripts/install_kit.py` — installs into a PBIP project behind gates, dry run by default. `scripts/build_kit.py` — regenerates the TMDL and the column reference from the query and the item definitions. `references/` — every column, and what each item was measured to resolve to.
+
+**Pairs with:** `powerbi-desktop-engine`, whose `compilecheck.py` is the gate after an install. `powerbi-visual-formatting`, whose calculation group shares a model with this one.
+
+**Evals:**
+1. "We have four reports that each carry their own copy of the same date table. I want one standard date dimension across all of them, with our fiscal year starting in July. What breaks if I just swap the table out, and can you do the first one?"
+2. "On this line chart the year-to-date total runs flat all the way out to December, and September looks like it dropped 10% against August when it's only the 28th. I want a slicer that switches the chart between YTD, fiscal YTD and month-over-month and just works, without me adding a filter to every visual."
+
+---
+
 ## 2. Amendments
 
 - **v0.1** — plugin created. Three skills, first executable payload in this repository.
 - **v0.2** — added `powerbi-design-bridge`. Four skills. Establishes the component vocabulary that lets an HTML deliverable and a Power BI report share one design decision.
 - **v0.3** — added `powerbi-bookmark-toggle`, the first component sub-skill. Five skills. Sets the pattern: a component is built in a real report first, then written down, and the write-up carries the traps rather than the happy path.
+- **v0.4** — added `powerbi-date-dimension`. Six skills. First component that lives in the model rather than the report. Four reports carried identical copies of one date script, with a weekend flag that marked Friday and Saturday and a holiday column that was always empty; nothing referenced either, which is why nobody had noticed. The calculation items clip themselves to today because the first version needed a visual filter to look right, and a fix that has to be remembered on every visual is not one.
 - **v0.3.4** — `baseline.py` fingerprints every visual's data so a model change is diffable rather than eyeballed. The catalogue's heat-map entry gains both PBIR formatting forms and the rule that a uniform heat map is a data defect, not a formatting one -- written after a report's ramp turned out to have been correct all along.
 - **v0.3.3** — `visualdax.py` makes the query check headless: derived from PBIR rather than recorded, so validation runs per instance without Desktop. Performance Analyzer's job narrows to calibrating once per component type. Its first headless run found a live report's heat map returning the same value for all 16 vendors.
 - **v0.3.2** — `powerbi-desktop-engine` gains `paquery.py`. A report edit is now provable by the statement each visual issues rather than by looking at two renders: Performance Analyzer records the DAX, and the diff is the judge. The modeling MCP's trace cannot substitute — it sees only its own connection.
