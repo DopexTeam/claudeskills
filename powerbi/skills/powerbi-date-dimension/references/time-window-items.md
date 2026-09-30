@@ -23,9 +23,10 @@ of the selection is. The relative-to-today items use neither.
 | Prior | `Prior Period` | the same number of days, ending the day before `_min` |
 | | `PW` | `_min` − 7 → `_end` − 7 |
 | | `PM`, `PQ`, `PY` | `_min` and `_end` moved back 1, 3, 12 months; a whole-month selection stays whole months |
-| Prior to date | `PY MTD`, `PY QTD`, `PY YTD`, `PY FYTD` | the to-date window, ending one year before `_end` |
-| Change | `PoP`, `MoM`, `YoY` | the selection up to today, minus `Prior Period`, `PM`, `PY` |
-| | `YTD YoY` | `YTD` minus `PY YTD` |
+| Prior to date | `PM MTD`, `PQ QTD` | the to-date window, ending one month or one quarter before `_end`; a month-end stays a month-end |
+| | `PY MTD`, `PY QTD`, `PY YTD`, `PY FYTD` | the to-date window, ending one year before `_end` |
+| Change | `PoP`, `MoM`, `QoQ`, `YoY` | the selection up to today, minus `Prior Period`, `PM`, `PQ`, `PY` |
+| | `MTD MoM`, `QTD QoQ`, `YTD YoY`, `FYTD YoY` | `MTD` minus `PM MTD`, `QTD` minus `PQ QTD`, `YTD` minus `PY YTD`, `FYTD` minus `PY FYTD` |
 | | each with `%` | the same, divided by the prior; formatted `0.0%` |
 | Relative to today | `Today`, `Yesterday` | `Day Offset` 0, −1 |
 | | `Last 7 / 30 / 90 Days` | `Day Offset` −(N−1) → 0, so today is included |
@@ -33,9 +34,17 @@ of the selection is. The relative-to-today items use neither.
 | | `This / Last Week, Month, Quarter, Year` | the matching offset column = 0 or −1; whole periods |
 | | `This Fiscal Year` | `Fiscal Year Offset` = 0 |
 
+Offsets are compared with `==`, and the `Last N Days` ranges test for a blank
+first. A fact row with no date sits on the blank row of the date table, where
+every offset is blank, and a blank equals 0 under `=`.
+
 To-date, rolling and prior items replace every filter on `DateDimension`,
 including one on `WeekDayName` or `IsWorkday`. Relative-to-today items and the
 current side of a change item keep them.
+
+`Prior Period`, `PW`, `PM`, `PQ` and `PY` are blank when nothing on
+`DateDimension` is filtered, and `PoP`, `MoM`, `QoQ` and `YoY` with them. The
+to-date items and their changes need no selection: `_end` is then today.
 
 Prior items treat a selection as one range from `_min` to `_end`. January and
 March selected together are compared with a prior January-to-March.
@@ -104,6 +113,16 @@ selection does not.
 | none | This Fiscal Year | 365 | 2026-07-01 | 2027-06-30 |
 | February 2025 | FYTD | 243 | 2024-07-01 | 2025-02-28 |
 | February 2025 | PY FYTD | 244 | 2023-07-01 | 2024-02-29 |
+
+### An October fiscal year, on 29 September 2026
+
+| Item | Days | From | To |
+|---|---|---|---|
+| FYTD | 364 | 2025-10-01 | 2026-09-29 |
+| This Fiscal Year | 365 | 2025-10-01 | 2026-09-30 |
+| Last Month | 31 | 2026-08-01 | 2026-08-31 |
+
+Pinned to 1 October 2026, `FYTD` is that one day and `Last Month` is September.
 
 ### Text measures
 

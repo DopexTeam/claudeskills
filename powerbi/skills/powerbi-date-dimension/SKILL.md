@@ -23,7 +23,7 @@ on the page → the report's author.
 | File | What it is |
 |---|---|
 | `assets/DateDimension.tmdl` | 68 columns, three hierarchies, marked as the date table. Generated in Power Query, no data source. |
-| `assets/Time Window.tmdl` | calculation group, 44 items |
+| `assets/Time Window.tmdl` | calculation group, 54 items |
 | `assets/DateDimension.pq` | the query alone |
 | `assets/install.tmdl` | both tables as a `createOrReplace` script for TMDL view |
 
@@ -97,7 +97,7 @@ has not been run.
 - **Columns can no longer be dropped onto a visual as values.** Existing visuals
   that already aggregate a column keep working.
 - **No item reaches those visuals.** A calculation group changes measures only;
-  a raw column sum returned the same total under all 44 items. The installer
+  a raw column sum returned the same total under all 54 items. The installer
   counts them. To window one, give it a measure: `Total Amount = SUM ( Fact[Amount] )`.
 - **Every measure becomes a variant type** in the report. A dynamic format
   string that reuses a measure can start erroring; wrap it in `FORMAT ( [m], "" )`.
@@ -114,7 +114,7 @@ filter, which is one more thing to remember on every visual and the first thing
 forgotten.
 
 So the items that look back from a date, which are the to-date, rolling and
-prior ones, 19 of the 44, open by finding the last selected date that is not in
+prior ones, 21 of the 54, open by finding the last selected date that is not in
 the future:
 
 ```dax
@@ -128,7 +128,7 @@ The other items get there differently:
 
 | Items | How |
 |---|---|
-| 8 change items | compare the elapsed part of the selection with the matching prior item, so both sides cover the same span |
+| 16 change items | the first eight compare the elapsed part of the selection with the matching prior item, so both sides cover the same span; the to-date eight compare a to-date item with its prior |
 | 16 relative-to-today items | filter an offset column directly. They are not clipped: `Next 7 Days` is meant to be in the future. |
 | `Current` | the measure unchanged |
 
@@ -165,6 +165,52 @@ which is what makes it usable on a chart. The cost: a card showing `Last 7 Days`
 on a page sliced to last year is blank. To make one item ignore the date
 selection, change its `KEEPFILTERS ( ... )` to `REMOVEFILTERS ( DateDimension ), ...`
 in `scripts/build_kit.py` and rebuild.
+
+### Two families: one needs a date on the visual, one does not
+
+The names follow the usual vocabulary of time intelligence, and the split is
+the one that vocabulary makes.
+
+| Family | Items | On a visual with no date |
+|---|---|---|
+| Anchored on today | to-date, rolling, `PM MTD` to `PY FYTD`, `MTD MoM` to `FYTD YoY`, relative to today | works: drag the measure and the item |
+| Moves the selection | `Prior Period`, `PW`, `PM`, `PQ`, `PY`, `PoP`, `MoM`, `QoQ`, `YoY` | blank |
+
+`MoM` is the selected dates against the same dates a month earlier. Select
+September on the 12th and it is 1 to 12 September against 1 to 12 August. With
+nothing selected there are no dates to move. The item used to take the whole
+table as the selection and return everything up to a month ago, 39,053 on a
+model holding 43,021: a figure that reads as a result. It is blank now, and a
+blank visual says to add a date.
+
+`MTD MoM` is the one to use without a date: this month to date against last
+month to the same day. The two agree when the current month is the selection
+and differ everywhere else, which is why they are two items and not one item
+with a default.
+
+A selection means a filter on `DateDimension`. A filter on a fact table or
+another dimension does not count, unless a relationship to the date table
+filters in both directions.
+
+### Undated rows stay out of every window
+
+A fact row with no date, or a date the table does not reach, sits on the blank
+row of `DateDimension`, where every offset is blank. `Month Offset = 0` is true
+for a blank, so `This Month` written with `=` counted them all: a count dated by
+an end date returned 11,538 for a month that held 3,732, the other 7,806 being
+rows with no end date. The offset items test with `==`, and a range that spans 0
+tests for a blank first. `Current` still counts undated rows, because it is the
+measure unchanged.
+
+### A rule one report wants is not an item
+
+A client asked for last month to read zero through the first month of a fiscal
+year. It was built as an item, `Last Month FY`, shown to them on a pinned 1
+October, and withdrawn the same hour: they wanted September. The item came out
+of the kit with the rule. The items are the vocabulary everyone already reads
+the same way; a rule that belongs to one report is two `KEEPFILTERS` in that
+report's measure, `Month Offset == -1` and `Fiscal Year Offset == 0`, where the
+next reader finds it next to the name it explains.
 
 ## Wiring it to a fact table
 
@@ -256,8 +302,8 @@ definitions; `assets/DateDimension.pq` holds the query.
 python scripts/build_kit.py
 ```
 
-Nineteen of the 44 items share their opening variables, so a change to the
-clipping rule is one edit there and nineteen by hand. A new column is declared
+Twenty-one of the 54 items share their opening variables, so a change to the
+clipping rule is one edit there and twenty-one by hand. A new column is declared
 three times — the query's record, the query's schema, `COLS` — and the build
 refuses when the last two disagree.
 

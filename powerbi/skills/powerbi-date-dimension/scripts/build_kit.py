@@ -11,11 +11,11 @@ Writes  ../assets/DateDimension.tmdl   the table
 
 Why the TMDL is generated rather than edited
 --------------------------------------------
-The 44 calculation items are a few shapes repeated. Nineteen of them share the
+The 54 calculation items are a few shapes repeated. Twenty-one of them share the
 same two opening variables, and the rule those variables encode -- clip the
 selection to today, return blank when nothing is left -- is the thing most
-likely to need changing. Edited by hand it has to be changed in nineteen places
-and will be changed in eighteen.
+likely to need changing. Edited by hand it has to be changed in twenty-one places
+and will be changed in twenty.
 
 The table has the same property in a milder form: a column is declared in the
 query's record, in the query's schema, and in the TMDL. COLS is the TMDL third.
@@ -127,12 +127,17 @@ HIERARCHIES = [
 HEAD = f"""VAR _min = MIN ( {D}[Date] )
 VAR _end = CALCULATE ( MAX ( {D}[Date] ), KEEPFILTERS ( {D}[Day Offset] <= 0 ) )"""
 
-PY_HEAD = HEAD + """
-VAR _pyEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )"""
+# A prior item moves the selected dates. With no date selected the selection is
+# the whole table, and the item returned everything up to a month ago: a figure
+# that reads as a result and means nothing. _dated is false then, and the item
+# is blank. It tests the date table alone, so a filter on a fact table or on
+# another dimension does not count as a selection.
+DATED_HEAD = HEAD + f"""
+VAR _dated = ISCROSSFILTERED ( {D}[Date] )"""
 
 
-def window(start, end, op=">="):
-    return ("RETURN\n    IF (\n        NOT ISBLANK ( _end ),\n        CALCULATE (\n            SELECTEDMEASURE (),\n"
+def window(start, end, op=">=", when="NOT ISBLANK ( _end )"):
+    return (f"RETURN\n    IF (\n        {when},\n        CALCULATE (\n            SELECTEDMEASURE (),\n"
             f"            REMOVEFILTERS ( {D} ),\n"
             f"            {D}[Date] {op} {start} && {D}[Date] <= {end}\n        )\n    )")
 
@@ -155,16 +160,25 @@ def rolling_months(n):
     return rolling(f"IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -{n} ), EDATE ( _end, -{n} ) )")
 
 
+def moved(body):
+    return f"{DATED_HEAD}\n{body}\n" + window("_priorStart", "_priorEnd", when="_dated && NOT ISBLANK ( _end )")
+
+
 def shifted(months):
-    return (f"{HEAD}\n"
-            f"VAR _wholeMonths = DAY ( _min ) = 1 && _end = EOMONTH ( _end, 0 )\n"
-            f"VAR _priorStart = EDATE ( _min, {months} )\n"
-            f"VAR _priorEnd = IF ( _wholeMonths, EOMONTH ( _end, {months} ), EDATE ( _end, {months} ) )\n"
-            + window("_priorStart", "_priorEnd"))
+    return moved(f"VAR _wholeMonths = DAY ( _min ) = 1 && _end = EOMONTH ( _end, 0 )\n"
+                 f"VAR _priorStart = EDATE ( _min, {months} )\n"
+                 f"VAR _priorEnd = IF ( _wholeMonths, EOMONTH ( _end, {months} ), EDATE ( _end, {months} ) )")
+
+
+def prior_to_date(end, months, start_expr):
+    # The to-date window as it stood that many months before _end. A month-end
+    # stays a month-end, so a whole month is compared with a whole month.
+    head = f"{HEAD}\nVAR {end} = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -{months} ), EDATE ( _end, -{months} ) )"
+    return f"{head}\nVAR _start = {start_expr}\n" + window("_start", end)
 
 
 def py_to_date(start_expr):
-    return f"{PY_HEAD}\nVAR _start = {start_expr}\n" + window("_start", "_pyEnd")
+    return prior_to_date("_pyEnd", 12, start_expr)
 
 
 def item(name):
@@ -172,8 +186,11 @@ def item(name):
 
 
 # The selection without its future dates, so both sides of a comparison cover
-# the same span.
-ELAPSED = f"CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( {D}[Day Offset] <= 0 ) )"
+# the same span. NOT_BLANK keeps out the fact rows with no date, or a date the
+# table does not reach: they sit on the blank row, where every offset is blank,
+# and a blank is <= 0.
+NOT_BLANK = f"NOT ISBLANK ( {D}[Day Offset] ) && "
+ELAPSED = f"CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( {NOT_BLANK}{D}[Day Offset] <= 0 ) )"
 
 # A slicer on Window reaches every measure on the page, including the text
 # measures behind dynamic titles. Arithmetic on one is a visual-breaking error,
@@ -196,14 +213,23 @@ def pct(cur, prior):
         math="IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )")
 
 
+def offset_test(col, lo, hi=None):
+    # == and not =, and a blank test on a range that spans 0: a blank offset
+    # equals 0 under =, and This Month then counts every undated fact row.
+    if hi is None:
+        return f"{D}[{col}] == {lo}"
+    guard = f"NOT ISBLANK ( {D}[{col}] ) && " if lo <= 0 <= hi else ""
+    return f"{guard}{D}[{col}] >= {lo} && {D}[{col}] <= {hi}"
+
+
 def offset(col, lo, hi=None):
-    cond = f"{D}[{col}] = {lo}" if hi is None else f"{D}[{col}] >= {lo} && {D}[{col}] <= {hi}"
-    return f"CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( {cond} ) )"
+    return f"CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( {offset_test(col, lo, hi)} ) )"
 
 
 PCT = 'IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )'
 TO_DATE = "Ends on the last selected date that is not in the future. Blank when every selected date is in the future."
-PRIOR = "Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when every selected date is in the future."
+PRIOR = "Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future."
+CHANGE = " Blank when no dates are selected."
 FIXED = "Applied within the dates selected, so on a date axis only the points inside the window show."
 
 ITEMS = [
@@ -224,27 +250,36 @@ ITEMS = [
     ("Rolling 12M", "The 12 months up to and including the end date. " + TO_DATE, rolling_months(12), None),
 
     ("Prior Period", "The period of the same length immediately before the selected dates. " + PRIOR,
-     f"{HEAD}\nVAR _days = INT ( _end - _min ) + 1\nVAR _priorStart = _min - _days\nVAR _priorEnd = _min - 1\n"
-     + window("_priorStart", "_priorEnd"), None),
+     moved("VAR _days = INT ( _end - _min ) + 1\nVAR _priorStart = _min - _days\nVAR _priorEnd = _min - 1"), None),
     ("PW", "The selected dates moved back 7 days. " + PRIOR,
-     f"{HEAD}\nVAR _priorStart = _min - 7\nVAR _priorEnd = _end - 7\n" + window("_priorStart", "_priorEnd"), None),
+     moved("VAR _priorStart = _min - 7\nVAR _priorEnd = _end - 7"), None),
     ("PM", "The selected dates moved back one month. Whole months stay whole months. " + PRIOR, shifted(-1), None),
     ("PQ", "The selected dates moved back one quarter. Whole months stay whole months. " + PRIOR, shifted(-3), None),
     ("PY", "The selected dates moved back one year. Whole months stay whole months. " + PRIOR, shifted(-12), None),
 
+    ("PM MTD", "Month to date as it stood one month before the end date.", prior_to_date("_pmEnd", 1, "EOMONTH ( _pmEnd, -1 ) + 1"), None),
+    ("PQ QTD", "Quarter to date as it stood one quarter before the end date.", prior_to_date("_pqEnd", 3, lookup("FirstDayOfQuarter", "_pqEnd")), None),
     ("PY MTD", "Month to date as it stood one year before the end date.", py_to_date("EOMONTH ( _pyEnd, -1 ) + 1"), None),
     ("PY QTD", "Quarter to date as it stood one year before the end date.", py_to_date(lookup("FirstDayOfQuarter", "_pyEnd")), None),
     ("PY YTD", "Year to date as it stood one year before the end date.", py_to_date("DATE ( YEAR ( _pyEnd ), 1, 1 )"), None),
     ("PY FYTD", "Fiscal year to date as it stood one year before the end date.", py_to_date(lookup("FirstDayOfFiscalYear", "_pyEnd")), None),
 
-    ("PoP", "Change from the prior period of the same length.", delta(None, "Prior Period"), None),
-    ("PoP %", "Percentage change from the prior period of the same length.", pct(None, "Prior Period"), PCT),
-    ("MoM", "Change from the same dates one month earlier.", delta(None, "PM"), None),
-    ("MoM %", "Percentage change from the same dates one month earlier.", pct(None, "PM"), PCT),
-    ("YoY", "Change from the same dates one year earlier.", delta(None, "PY"), None),
-    ("YoY %", "Percentage change from the same dates one year earlier.", pct(None, "PY"), PCT),
+    ("PoP", "Change from the prior period of the same length." + CHANGE, delta(None, "Prior Period"), None),
+    ("PoP %", "Percentage change from the prior period of the same length." + CHANGE, pct(None, "Prior Period"), PCT),
+    ("MoM", "Change from the same dates one month earlier." + CHANGE, delta(None, "PM"), None),
+    ("MoM %", "Percentage change from the same dates one month earlier." + CHANGE, pct(None, "PM"), PCT),
+    ("QoQ", "Change from the same dates one quarter earlier." + CHANGE, delta(None, "PQ"), None),
+    ("QoQ %", "Percentage change from the same dates one quarter earlier." + CHANGE, pct(None, "PQ"), PCT),
+    ("YoY", "Change from the same dates one year earlier." + CHANGE, delta(None, "PY"), None),
+    ("YoY %", "Percentage change from the same dates one year earlier." + CHANGE, pct(None, "PY"), PCT),
+    ("MTD MoM", "Change in month to date from the same point one month earlier.", delta("MTD", "PM MTD"), None),
+    ("MTD MoM %", "Percentage change in month to date from the same point one month earlier.", pct("MTD", "PM MTD"), PCT),
+    ("QTD QoQ", "Change in quarter to date from the same point one quarter earlier.", delta("QTD", "PQ QTD"), None),
+    ("QTD QoQ %", "Percentage change in quarter to date from the same point one quarter earlier.", pct("QTD", "PQ QTD"), PCT),
     ("YTD YoY", "Change in year to date from the same point one year earlier.", delta("YTD", "PY YTD"), None),
     ("YTD YoY %", "Percentage change in year to date from the same point one year earlier.", pct("YTD", "PY YTD"), PCT),
+    ("FYTD YoY", "Change in fiscal year to date from the same point one year earlier.", delta("FYTD", "PY FYTD"), None),
+    ("FYTD YoY %", "Percentage change in fiscal year to date from the same point one year earlier.", pct("FYTD", "PY FYTD"), PCT),
 
     ("Today", "Today only. " + FIXED, offset("Day Offset", 0), None),
     ("Yesterday", "Yesterday only. " + FIXED, offset("Day Offset", -1), None),
