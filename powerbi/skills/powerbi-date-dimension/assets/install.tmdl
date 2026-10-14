@@ -1,0 +1,1673 @@
+createOrReplace
+
+	/// Generated date dimension. Configure it at the top of the partition's M query.
+	table DateDimension
+		dataCategory: Time
+
+		/// One row per calendar day. Relate fact tables to this column.
+		column Date
+			dataType: dateTime
+			isKey
+			formatString: Short Date
+			summarizeBy: none
+			sourceColumn: Date
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Integer key in yyyymmdd form.
+		column DateKey
+			dataType: int64
+			formatString: 0
+			summarizeBy: none
+			sourceColumn: DateKey
+
+			annotation SummarizationSetBy = User
+
+		/// Day of the month, 1-31.
+		column Day
+			dataType: int64
+			formatString: 0
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: Day
+
+			annotation SummarizationSetBy = User
+
+		/// Ordinal suffix for the day: st, nd, rd or th.
+		column DaySuffix
+			dataType: string
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: DaySuffix
+
+			annotation SummarizationSetBy = User
+
+		/// Day of the week as a number, 0 = the configured first day of the week.
+		column Weekday
+			dataType: int64
+			formatString: 0
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: Weekday
+
+			annotation SummarizationSetBy = User
+
+		/// Full day name.
+		column WeekDayName
+			dataType: string
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: WeekDayName
+			sortByColumn: Weekday
+
+			annotation SummarizationSetBy = User
+
+		/// Three-letter day name.
+		column WeekDayNameShort
+			dataType: string
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: WeekDayNameShort
+			sortByColumn: Weekday
+
+			annotation SummarizationSetBy = User
+
+		/// Which occurrence of this weekday in the month, e.g. 3 for the third Monday.
+		column DowInMonth
+			dataType: int64
+			formatString: 0
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: DowInMonth
+
+			annotation SummarizationSetBy = User
+
+		/// Day number within the calendar quarter.
+		column DayOfQuarter
+			dataType: int64
+			formatString: 0
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: DayOfQuarter
+
+			annotation SummarizationSetBy = User
+
+		/// Day number within the calendar year.
+		column DayOfYear
+			dataType: int64
+			formatString: 0
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: DayOfYear
+
+			annotation SummarizationSetBy = User
+
+		/// True on the configured weekend days.
+		column IsWeekend
+			dataType: boolean
+			formatString: """TRUE"";""TRUE"";""FALSE"""
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: IsWeekend
+
+			annotation SummarizationSetBy = User
+
+		/// True on a holiday or its observed day.
+		column IsHoliday
+			dataType: boolean
+			formatString: """TRUE"";""TRUE"";""FALSE"""
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: IsHoliday
+
+			annotation SummarizationSetBy = User
+
+		/// Holiday name, blank on other days.
+		column HolidayText
+			dataType: string
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: HolidayText
+
+			annotation SummarizationSetBy = User
+
+		/// True when the day is neither a weekend day nor a holiday.
+		column IsWorkday
+			dataType: boolean
+			formatString: """TRUE"";""TRUE"";""FALSE"""
+			displayFolder: Day
+			summarizeBy: none
+			sourceColumn: IsWorkday
+
+			annotation SummarizationSetBy = User
+
+		/// Week number within the month.
+		column WeekOfMonth
+			dataType: int64
+			formatString: 0
+			displayFolder: Week
+			summarizeBy: none
+			sourceColumn: WeekOfMonth
+
+			annotation SummarizationSetBy = User
+
+		/// Week number within the year, using the configured first day of the week.
+		column WeekOfYear
+			dataType: int64
+			formatString: 0
+			displayFolder: Week
+			summarizeBy: none
+			sourceColumn: WeekOfYear
+
+			annotation SummarizationSetBy = User
+
+		/// First day of the week this date falls in.
+		column 'Start of Week'
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Week
+			summarizeBy: none
+			sourceColumn: Start of Week
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Last day of the week this date falls in (week ending).
+		column 'End of Week'
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Week
+			summarizeBy: none
+			sourceColumn: End of Week
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// ISO 8601 week number.
+		column ISOWeekOfYear
+			dataType: int64
+			formatString: 0
+			displayFolder: Week
+			summarizeBy: none
+			sourceColumn: ISOWeekOfYear
+
+			annotation SummarizationSetBy = User
+
+		/// ISO 8601 year the week belongs to.
+		column ISOYear
+			dataType: int64
+			formatString: 0
+			displayFolder: Week
+			summarizeBy: none
+			sourceColumn: ISOYear
+
+			annotation SummarizationSetBy = User
+
+		/// ISO week label, e.g. 2026-W40.
+		column ISOWeekLabel
+			dataType: string
+			displayFolder: Week
+			summarizeBy: none
+			sourceColumn: ISOWeekLabel
+			sortByColumn: ISOWeek_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Sort key for ISOWeekLabel.
+		column ISOWeek_sort
+			dataType: int64
+			isHidden
+			formatString: 0
+			displayFolder: Week
+			summarizeBy: none
+			sourceColumn: ISOWeek_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Month number, 1-12.
+		column Month
+			dataType: int64
+			formatString: 0
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: Month
+
+			annotation SummarizationSetBy = User
+
+		/// Full month name.
+		column MonthName
+			dataType: string
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: MonthName
+			sortByColumn: Month
+
+			annotation SummarizationSetBy = User
+
+		/// Three-letter month name.
+		column MonthNameShort
+			dataType: string
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: MonthNameShort
+			sortByColumn: Month
+
+			annotation SummarizationSetBy = User
+
+		/// Month and year without a space, e.g. Sep2026.
+		column MonthYear
+			dataType: string
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: MonthYear
+			sortByColumn: YYYYMM_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Month and year, e.g. Sep 2026.
+		column 'Month Year'
+			dataType: string
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: Month Year
+			sortByColumn: YYYYMM_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Month and year as digits, e.g. 092026.
+		column MMYYYY
+			dataType: string
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: MMYYYY
+			sortByColumn: YYYYMM_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Year and month, e.g. 2026-09.
+		column YearMonth
+			dataType: string
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: YearMonth
+			sortByColumn: YYYYMM_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Sort key for month-and-year labels.
+		column YYYYMM_sort
+			dataType: int64
+			isHidden
+			formatString: 0
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: YYYYMM_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Number of days in the month.
+		column 'Days in Month'
+			dataType: int64
+			formatString: 0
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: Days in Month
+
+			annotation SummarizationSetBy = User
+
+		/// First day of the month.
+		column FirstDayOfMonth
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: FirstDayOfMonth
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Last day of the month.
+		column LastDayOfMonth
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: LastDayOfMonth
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// First day of the following month.
+		column FirstDayOfNextMonth
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Month
+			summarizeBy: none
+			sourceColumn: FirstDayOfNextMonth
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Calendar quarter number, 1-4.
+		column Quarter
+			dataType: int64
+			formatString: 0
+			displayFolder: Quarter
+			summarizeBy: none
+			sourceColumn: Quarter
+
+			annotation SummarizationSetBy = User
+
+		/// Calendar quarter label, e.g. Q3.
+		column QuarterName
+			dataType: string
+			displayFolder: Quarter
+			summarizeBy: none
+			sourceColumn: QuarterName
+			sortByColumn: Quarter
+
+			annotation SummarizationSetBy = User
+
+		/// Year and quarter, e.g. 2026 Q3.
+		column YearQuarter
+			dataType: string
+			displayFolder: Quarter
+			summarizeBy: none
+			sourceColumn: YearQuarter
+			sortByColumn: YYYYQ_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Sort key for YearQuarter.
+		column YYYYQ_sort
+			dataType: int64
+			isHidden
+			formatString: 0
+			displayFolder: Quarter
+			summarizeBy: none
+			sourceColumn: YYYYQ_sort
+
+			annotation SummarizationSetBy = User
+
+		/// First day of the calendar quarter.
+		column FirstDayOfQuarter
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Quarter
+			summarizeBy: none
+			sourceColumn: FirstDayOfQuarter
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Last day of the calendar quarter.
+		column LastDayOfQuarter
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Quarter
+			summarizeBy: none
+			sourceColumn: LastDayOfQuarter
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Calendar year.
+		column Year
+			dataType: int64
+			formatString: 0
+			displayFolder: Year
+			summarizeBy: none
+			sourceColumn: Year
+
+			annotation SummarizationSetBy = User
+
+		/// First day of the calendar year.
+		column FirstDayofYear
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Year
+			summarizeBy: none
+			sourceColumn: FirstDayofYear
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Last day of the calendar year.
+		column LastDayOfYear
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Year
+			summarizeBy: none
+			sourceColumn: LastDayOfYear
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// First day of the following calendar year.
+		column FirstDayofNextYear
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Year
+			summarizeBy: none
+			sourceColumn: FirstDayofNextYear
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Fiscal year, named for the calendar year it ends in.
+		column 'Fiscal Year'
+			dataType: int64
+			formatString: 0
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: Fiscal Year
+
+			annotation SummarizationSetBy = User
+
+		/// Fiscal quarter number, 1-4.
+		column 'Fiscal Quarter'
+			dataType: int64
+			formatString: 0
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: Fiscal Quarter
+
+			annotation SummarizationSetBy = User
+
+		/// Fiscal month number, 1-12.
+		column 'Fiscal Month'
+			dataType: int64
+			formatString: 0
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: Fiscal Month
+
+			annotation SummarizationSetBy = User
+
+		/// Month name that sorts in fiscal-year order. Use in place of MonthName on fiscal visuals.
+		column 'Fiscal Month Name'
+			dataType: string
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: Fiscal Month Name
+			sortByColumn: 'Fiscal Month'
+
+			annotation SummarizationSetBy = User
+
+		/// Fiscal year label, e.g. FY2026.
+		column 'Fiscal Year Label'
+			dataType: string
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: Fiscal Year Label
+			sortByColumn: 'Fiscal Year'
+
+			annotation SummarizationSetBy = User
+
+		/// Fiscal quarter label, e.g. FQ3.
+		column 'Fiscal Quarter Name'
+			dataType: string
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: Fiscal Quarter Name
+			sortByColumn: 'Fiscal Quarter'
+
+			annotation SummarizationSetBy = User
+
+		/// Fiscal year and quarter, e.g. FY2026 FQ3.
+		column 'Fiscal Year Quarter'
+			dataType: string
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: Fiscal Year Quarter
+			sortByColumn: FiscalYYYYQ_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Fiscal year and month, e.g. FY2026 P09.
+		column 'Fiscal Period'
+			dataType: string
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: Fiscal Period
+			sortByColumn: FiscalYYYYMM_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Sort key for Fiscal Year Quarter.
+		column FiscalYYYYQ_sort
+			dataType: int64
+			isHidden
+			formatString: 0
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: FiscalYYYYQ_sort
+
+			annotation SummarizationSetBy = User
+
+		/// Sort key for Fiscal Period.
+		column FiscalYYYYMM_sort
+			dataType: int64
+			isHidden
+			formatString: 0
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: FiscalYYYYMM_sort
+
+			annotation SummarizationSetBy = User
+
+		/// First day of the fiscal year.
+		column FirstDayOfFiscalYear
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: FirstDayOfFiscalYear
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Last day of the fiscal year.
+		column LastDayOfFiscalYear
+			dataType: dateTime
+			formatString: Short Date
+			displayFolder: Fiscal
+			summarizeBy: none
+			sourceColumn: LastDayOfFiscalYear
+
+			annotation SummarizationSetBy = User
+
+			annotation UnderlyingDateTimeDataType = Date
+
+		/// Days from today: 0 = today, -1 = yesterday, 1 = tomorrow. Recomputed on refresh.
+		column 'Day Offset'
+			dataType: int64
+			formatString: 0
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: Day Offset
+
+			annotation SummarizationSetBy = User
+
+		/// Weeks from the current week: 0 = this week, -1 = last week.
+		column 'Week Offset'
+			dataType: int64
+			formatString: 0
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: Week Offset
+
+			annotation SummarizationSetBy = User
+
+		/// Months from the current month: 0 = this month, -1 = last month.
+		column 'Month Offset'
+			dataType: int64
+			formatString: 0
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: Month Offset
+
+			annotation SummarizationSetBy = User
+
+		/// Quarters from the current quarter.
+		column 'Quarter Offset'
+			dataType: int64
+			formatString: 0
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: Quarter Offset
+
+			annotation SummarizationSetBy = User
+
+		/// Years from the current year.
+		column 'Year Offset'
+			dataType: int64
+			formatString: 0
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: Year Offset
+
+			annotation SummarizationSetBy = User
+
+		/// Fiscal quarters from the current fiscal quarter.
+		column 'Fiscal Quarter Offset'
+			dataType: int64
+			formatString: 0
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: Fiscal Quarter Offset
+
+			annotation SummarizationSetBy = User
+
+		/// Fiscal years from the current fiscal year.
+		column 'Fiscal Year Offset'
+			dataType: int64
+			formatString: 0
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: Fiscal Year Offset
+
+			annotation SummarizationSetBy = User
+
+		/// True for dates after today.
+		column IsFuture
+			dataType: boolean
+			formatString: """TRUE"";""TRUE"";""FALSE"""
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: IsFuture
+
+			annotation SummarizationSetBy = User
+
+		/// True when the day of the month is on or before today's. Filters every month to the same point for like-for-like comparison.
+		column IsMTD
+			dataType: boolean
+			formatString: """TRUE"";""TRUE"";""FALSE"""
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: IsMTD
+
+			annotation SummarizationSetBy = User
+
+		/// True when the position in the quarter is on or before today's position in the current quarter.
+		column IsQTD
+			dataType: boolean
+			formatString: """TRUE"";""TRUE"";""FALSE"""
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: IsQTD
+
+			annotation SummarizationSetBy = User
+
+		/// True when the month and day are on or before today's. Filters every year to the same point.
+		column IsYTD
+			dataType: boolean
+			formatString: """TRUE"";""TRUE"";""FALSE"""
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: IsYTD
+
+			annotation SummarizationSetBy = User
+
+		/// True when the position in the fiscal year is on or before today's.
+		column IsFYTD
+			dataType: boolean
+			formatString: """TRUE"";""TRUE"";""FALSE"""
+			displayFolder: Relative to today
+			summarizeBy: none
+			sourceColumn: IsFYTD
+
+			annotation SummarizationSetBy = User
+
+		hierarchy Calendar
+
+			level Year
+				column: Year
+
+			level Quarter
+				column: QuarterName
+
+			level Month
+				column: MonthName
+
+			level Date
+				column: Date
+
+		hierarchy Fiscal
+
+			level 'Fiscal Year'
+				column: 'Fiscal Year Label'
+
+			level 'Fiscal Quarter'
+				column: 'Fiscal Quarter Name'
+
+			level 'Fiscal Period'
+				column: 'Fiscal Period'
+
+			level Date
+				column: Date
+
+		hierarchy 'ISO Week'
+
+			level 'ISO Year'
+				column: ISOYear
+
+			level 'ISO Week'
+				column: ISOWeekLabel
+
+			level Date
+				column: Date
+
+		partition DateDimension = m
+			mode: import
+			source = ```
+					// DateDimension: portable, self-contained date dimension.
+					// No data source. Paste into a blank query, or use the TMDL table in this kit.
+					// Everything that varies between models is in the Configuration block.
+					let
+					    // ---- Configuration -------------------------------------------------
+					    FromYear          = 2000,            // first year, starts 1 January
+					    ToYear            = null,            // last year, ends 31 December; null = current year + YearsAhead
+					    YearsAhead        = 5,               // only used when ToYear is null
+					    StartOfFiscalYear = 1,               // month number the fiscal year starts in; fiscal year is named for the year it ends in
+					    FirstDayOfWeek    = Day.Monday,      // Day.Monday, Day.Sunday, ...
+					    WeekendDays       = {Day.Saturday, Day.Sunday},
+					    Culture           = "en-US",         // language of day and month names
+					    UtcOffsetHours    = null,            // null = clock of the machine that refreshes; e.g. -5 pins "today" to UTC-5 wherever the refresh runs
+					    HolidayCalendar   = "US Federal",    // "US Federal" or "None"
+					    ObserveHolidays   = true,            // Saturday holidays also mark the Friday, Sunday holidays the Monday
+					    ExtraHolidays     = #table(type table [Date = date, Holiday = text], {}),   // e.g. {{#date(2026, 11, 27), "Company Holiday"}}
+					    AsOfDate          = null,            // TESTING ONLY: a fixed "today", e.g. #date(2026, 10, 1). null = the real date. Never publish with this set.
+
+					    // ---- Anchors -------------------------------------------------------
+					    Today =
+					        if AsOfDate <> null then AsOfDate
+					        else if UtcOffsetHours = null
+					        then Date.From(DateTime.LocalNow())
+					        else Date.From(DateTimeZone.RemoveZone(DateTimeZone.SwitchZone(DateTimeZone.UtcNow(), UtcOffsetHours))),
+					    EndYear  = if ToYear = null then Date.Year(Today) + YearsAhead else ToYear,
+					    FromDate = #date(FromYear, 1, 1),
+					    ToDate   = #date(EndYear, 12, 31),
+					    Dates    = List.Dates(FromDate, Duration.Days(ToDate - FromDate) + 1, #duration(1, 0, 0, 0)),
+
+					    // ---- Fiscal helpers ------------------------------------------------
+					    FiscalShift   = Number.Mod(13 - StartOfFiscalYear, 12),
+					    FiscalBase    = (d as date) as date => Date.AddMonths(Date.StartOfMonth(d), FiscalShift),
+					    FiscalYearOf  = (d as date) as number => Date.Year(FiscalBase(d)),
+					    FiscalStartOf = (d as date) as date => Date.AddMonths(#date(FiscalYearOf(d), 1, 1), -FiscalShift),
+
+					    // ---- Position of "today", used by offsets and like-for-like flags --
+					    TodayYear          = Date.Year(Today),
+					    TodayMonth         = Date.Month(Today),
+					    TodayQuarter       = Date.QuarterOfYear(Today),
+					    TodayDay           = Date.Day(Today),
+					    TodayWeekStart     = Date.StartOfWeek(Today, FirstDayOfWeek),
+					    TodayFiscalYear    = FiscalYearOf(Today),
+					    TodayFiscalMonth   = Date.Month(FiscalBase(Today)),
+					    TodayFiscalQuarter = Date.QuarterOfYear(FiscalBase(Today)),
+					    MonthInQuarter     = (d as date) as number => Number.Mod(Date.Month(d) - 1, 3) + 1,
+
+					    // ---- Holidays ------------------------------------------------------
+					    // dow: 0 = Sunday ... 6 = Saturday
+					    NthWeekday = (y as number, m as number, dow as number, n as number) as date =>
+					        let
+					            first = #date(y, m, 1),
+					            shift = Number.Mod(dow - Date.DayOfWeek(first, Day.Sunday) + 7, 7)
+					        in
+					            Date.AddDays(first, shift + 7 * (n - 1)),
+					    LastWeekday = (y as number, m as number, dow as number) as date =>
+					        let
+					            last = Date.EndOfMonth(#date(y, m, 1)),
+					            back = Number.Mod(Date.DayOfWeek(last, Day.Sunday) - dow + 7, 7)
+					        in
+					            Date.AddDays(last, -back),
+					    UsFederal = (y as number) as list =>
+					        {
+					            {#date(y, 1, 1),          "New Year's Day"},
+					            {NthWeekday(y, 1, 1, 3),  "Martin Luther King Jr. Day"},
+					            {NthWeekday(y, 2, 1, 3),  "Presidents' Day"},
+					            {LastWeekday(y, 5, 1),    "Memorial Day"},
+					            {#date(y, 7, 4),          "Independence Day"},
+					            {NthWeekday(y, 9, 1, 1),  "Labor Day"},
+					            {NthWeekday(y, 10, 1, 2), "Columbus Day"},
+					            {#date(y, 11, 11),        "Veterans Day"},
+					            {NthWeekday(y, 11, 4, 4), "Thanksgiving Day"},
+					            {#date(y, 12, 25),        "Christmas Day"}
+					        }
+					        & (if y >= 2021 then {{#date(y, 6, 19), "Juneteenth"}} else {}),
+					    CalendarHolidays =
+					        if HolidayCalendar = "US Federal"
+					        then List.Combine(List.Transform({FromYear .. EndYear + 1}, UsFederal))
+					        else {},
+					    ActualHolidays = CalendarHolidays & Table.ToRows(Table.SelectColumns(ExtraHolidays, {"Date", "Holiday"})),
+					    ObservedHolidays =
+					        if ObserveHolidays
+					        then List.Combine(List.Transform(ActualHolidays, (h) =>
+					            let dow = Date.DayOfWeek(h{0}, Day.Sunday)
+					            in
+					                if dow = 6 then {{Date.AddDays(h{0}, -1), h{1} & " (Observed)"}}
+					                else if dow = 0 then {{Date.AddDays(h{0}, 1), h{1} & " (Observed)"}}
+					                else {}))
+					        else {},
+					    HolidayTable  = #table(type table [Date = date, Holiday = text], ActualHolidays & ObservedHolidays),
+					    HolidayByDate = Table.Group(HolidayTable, {"Date"}, {{"Holiday", each Text.Combine(List.Distinct([Holiday]), " / "), type text}}),
+					    KeyOf         = (d as date) as number => Date.Year(d) * 10000 + Date.Month(d) * 100 + Date.Day(d),
+					    KeyText       = (d as date) as text => Text.From(KeyOf(d), "en-US"),
+					    HolidayLookup = Record.FromList(HolidayByDate[Holiday], List.Transform(HolidayByDate[Date], KeyText)),
+
+					    // ---- One record per date -------------------------------------------
+					    Row = (d as date) as record =>
+					        let
+					            y   = Date.Year(d),
+					            m   = Date.Month(d),
+					            q   = Date.QuarterOfYear(d),
+					            dd  = Date.Day(d),
+					            fb  = FiscalBase(d),
+					            fy  = Date.Year(fb),
+					            fm  = Date.Month(fb),
+					            fq  = Date.QuarterOfYear(fb),
+					            fys = FiscalStartOf(d),
+					            isoThursday = Date.AddDays(d, 3 - Date.DayOfWeek(d, Day.Monday)),
+					            isoYear     = Date.Year(isoThursday),
+					            isoWeek     = Number.IntegerDivide(Date.DayOfYear(isoThursday) - 1, 7) + 1,
+					            holiday     = Record.FieldOrDefault(HolidayLookup, KeyText(d), null),
+					            isWeekend   = List.Contains(WeekendDays, Date.DayOfWeek(d, Day.Sunday)),
+					            two         = (n as number) as text => Text.PadStart(Text.From(n, "en-US"), 2, "0")
+					        in
+					            [
+					                // Keys
+					                Date    = d,
+					                DateKey = KeyOf(d),
+
+					                // Day
+					                Day              = dd,
+					                DaySuffix        = if dd >= 11 and dd <= 13 then "th" else {"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"}{Number.Mod(dd, 10)},
+					                Weekday          = Date.DayOfWeek(d, FirstDayOfWeek),
+					                WeekDayName      = Date.DayOfWeekName(d, Culture),
+					                WeekDayNameShort = Date.ToText(d, "ddd", Culture),
+					                DowInMonth       = Number.IntegerDivide(dd - 1, 7) + 1,
+					                DayOfQuarter     = Duration.Days(d - Date.StartOfQuarter(d)) + 1,
+					                DayOfYear        = Date.DayOfYear(d),
+					                IsWeekend        = isWeekend,
+					                IsHoliday        = holiday <> null,
+					                HolidayText      = holiday,
+					                IsWorkday        = not isWeekend and holiday = null,
+
+					                // Week
+					                WeekOfMonth     = Date.WeekOfMonth(d, FirstDayOfWeek),
+					                WeekOfYear      = Date.WeekOfYear(d, FirstDayOfWeek),
+					                #"Start of Week" = Date.StartOfWeek(d, FirstDayOfWeek),
+					                #"End of Week"   = Date.EndOfWeek(d, FirstDayOfWeek),
+					                ISOWeekOfYear   = isoWeek,
+					                ISOYear         = isoYear,
+					                ISOWeekLabel    = Text.From(isoYear, "en-US") & "-W" & two(isoWeek),
+					                ISOWeek_sort    = isoYear * 100 + isoWeek,
+
+					                // Month
+					                Month               = m,
+					                MonthName           = Date.MonthName(d, Culture),
+					                MonthNameShort      = Date.ToText(d, "MMM", Culture),
+					                MonthYear           = Date.ToText(d, "MMMyyyy", Culture),
+					                #"Month Year"       = Date.ToText(d, "MMM yyyy", Culture),
+					                MMYYYY              = two(m) & Text.From(y, "en-US"),
+					                YearMonth           = Text.From(y, "en-US") & "-" & two(m),
+					                YYYYMM_sort         = y * 100 + m,
+					                #"Days in Month"    = Date.DaysInMonth(d),
+					                FirstDayOfMonth     = Date.StartOfMonth(d),
+					                LastDayOfMonth      = Date.EndOfMonth(d),
+					                FirstDayOfNextMonth = Date.StartOfMonth(Date.AddMonths(d, 1)),
+
+					                // Quarter
+					                Quarter           = q,
+					                QuarterName       = "Q" & Text.From(q, "en-US"),
+					                YearQuarter       = Text.From(y, "en-US") & " Q" & Text.From(q, "en-US"),
+					                YYYYQ_sort        = y * 10 + q,
+					                FirstDayOfQuarter = Date.StartOfQuarter(d),
+					                LastDayOfQuarter  = Date.EndOfQuarter(d),
+
+					                // Year
+					                Year               = y,
+					                FirstDayofYear     = Date.StartOfYear(d),
+					                LastDayOfYear      = Date.EndOfYear(d),
+					                FirstDayofNextYear = Date.StartOfYear(Date.AddYears(d, 1)),
+
+					                // Fiscal
+					                #"Fiscal Year"         = fy,
+					                #"Fiscal Quarter"      = fq,
+					                #"Fiscal Month"        = fm,
+					                #"Fiscal Month Name"   = Date.MonthName(d, Culture),
+					                #"Fiscal Year Label"   = "FY" & Text.From(fy, "en-US"),
+					                #"Fiscal Quarter Name" = "FQ" & Text.From(fq, "en-US"),
+					                #"Fiscal Year Quarter" = "FY" & Text.From(fy, "en-US") & " FQ" & Text.From(fq, "en-US"),
+					                #"Fiscal Period"       = "FY" & Text.From(fy, "en-US") & " P" & two(fm),
+					                FiscalYYYYQ_sort       = fy * 10 + fq,
+					                FiscalYYYYMM_sort      = fy * 100 + fm,
+					                FirstDayOfFiscalYear   = fys,
+					                LastDayOfFiscalYear    = Date.AddDays(Date.AddMonths(fys, 12), -1),
+
+					                // Relative to today (recomputed on every refresh)
+					                #"Day Offset"            = Duration.Days(d - Today),
+					                #"Week Offset"           = Number.IntegerDivide(Duration.Days(Date.StartOfWeek(d, FirstDayOfWeek) - TodayWeekStart), 7),
+					                #"Month Offset"          = (y - TodayYear) * 12 + (m - TodayMonth),
+					                #"Quarter Offset"        = (y - TodayYear) * 4 + (q - TodayQuarter),
+					                #"Year Offset"           = y - TodayYear,
+					                #"Fiscal Quarter Offset" = (fy - TodayFiscalYear) * 4 + (fq - TodayFiscalQuarter),
+					                #"Fiscal Year Offset"    = fy - TodayFiscalYear,
+					                IsFuture = d > Today,
+					                IsMTD    = dd <= TodayDay,
+					                IsQTD    = MonthInQuarter(d) * 100 + dd <= MonthInQuarter(Today) * 100 + TodayDay,
+					                IsYTD    = m * 100 + dd <= TodayMonth * 100 + TodayDay,
+					                IsFYTD   = fm * 100 + dd <= TodayFiscalMonth * 100 + TodayDay
+					            ],
+
+					    Schema = type table [
+					        Date = date, DateKey = Int64.Type,
+					        Day = Int64.Type, DaySuffix = text, Weekday = Int64.Type, WeekDayName = text, WeekDayNameShort = text,
+					        DowInMonth = Int64.Type, DayOfQuarter = Int64.Type, DayOfYear = Int64.Type,
+					        IsWeekend = logical, IsHoliday = logical, HolidayText = nullable text, IsWorkday = logical,
+					        WeekOfMonth = Int64.Type, WeekOfYear = Int64.Type, #"Start of Week" = date, #"End of Week" = date,
+					        ISOWeekOfYear = Int64.Type, ISOYear = Int64.Type, ISOWeekLabel = text, ISOWeek_sort = Int64.Type,
+					        Month = Int64.Type, MonthName = text, MonthNameShort = text, MonthYear = text, #"Month Year" = text,
+					        MMYYYY = text, YearMonth = text, YYYYMM_sort = Int64.Type, #"Days in Month" = Int64.Type,
+					        FirstDayOfMonth = date, LastDayOfMonth = date, FirstDayOfNextMonth = date,
+					        Quarter = Int64.Type, QuarterName = text, YearQuarter = text, YYYYQ_sort = Int64.Type,
+					        FirstDayOfQuarter = date, LastDayOfQuarter = date,
+					        Year = Int64.Type, FirstDayofYear = date, LastDayOfYear = date, FirstDayofNextYear = date,
+					        #"Fiscal Year" = Int64.Type, #"Fiscal Quarter" = Int64.Type, #"Fiscal Month" = Int64.Type,
+					        #"Fiscal Month Name" = text, #"Fiscal Year Label" = text, #"Fiscal Quarter Name" = text, #"Fiscal Year Quarter" = text, #"Fiscal Period" = text,
+					        FiscalYYYYQ_sort = Int64.Type, FiscalYYYYMM_sort = Int64.Type,
+					        FirstDayOfFiscalYear = date, LastDayOfFiscalYear = date,
+					        #"Day Offset" = Int64.Type, #"Week Offset" = Int64.Type, #"Month Offset" = Int64.Type,
+					        #"Quarter Offset" = Int64.Type, #"Year Offset" = Int64.Type,
+					        #"Fiscal Quarter Offset" = Int64.Type, #"Fiscal Year Offset" = Int64.Type,
+					        IsFuture = logical, IsMTD = logical, IsQTD = logical, IsYTD = logical, IsFYTD = logical
+					    ],
+
+					    DateDimension = Table.FromRecords(List.Transform(Dates, Row), Schema)
+					in
+					    DateDimension
+					```
+
+		annotation PBI_ResultType = Table
+
+
+	/// Date windows to apply to any measure. Put Window on a slicer, or on the columns or legend of a visual.
+	table 'Time Window'
+
+		calculationGroup
+			precedence: 10
+
+			/// The measure as it is, under the dates selected.
+			calculationItem Current = SELECTEDMEASURE ()
+				ordinal: 0
+
+			/// Week to date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem WTD =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = CALCULATE ( MAX ( DateDimension[Start of Week] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _end )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 1
+
+			/// Month to date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem MTD =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = EOMONTH ( _end, -1 ) + 1
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 2
+
+			/// Quarter to date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem QTD =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfQuarter] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _end )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 3
+
+			/// Year to date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem YTD =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = DATE ( YEAR ( _end ), 1, 1 )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 4
+
+			/// Fiscal year to date, using the fiscal year configured in DateDimension. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem FYTD =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfFiscalYear] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _end )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 5
+
+			/// The 7 days up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem 'Rolling 7D' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = _end - 7
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] > _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 6
+
+			/// The 30 days up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem 'Rolling 30D' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = _end - 30
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] > _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 7
+
+			/// The 90 days up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem 'Rolling 90D' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = _end - 90
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] > _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 8
+
+			/// The 3 months up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem 'Rolling 3M' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -3 ), EDATE ( _end, -3 ) )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] > _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 9
+
+			/// The 12 months up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+			calculationItem 'Rolling 12M' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _start = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] > _start && DateDimension[Date] <= _end
+					        )
+					    )
+				ordinal: 10
+
+			/// The period of the same length immediately before the selected dates. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+			calculationItem 'Prior Period' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+					VAR _days = INT ( _end - _min ) + 1
+					VAR _priorStart = _min - _days
+					VAR _priorEnd = _min - 1
+					RETURN
+					    IF (
+					        _dated && NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+					        )
+					    )
+				ordinal: 11
+
+			/// The selected dates moved back 7 days. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+			calculationItem PW =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+					VAR _priorStart = _min - 7
+					VAR _priorEnd = _end - 7
+					RETURN
+					    IF (
+					        _dated && NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+					        )
+					    )
+				ordinal: 12
+
+			/// The selected dates moved back one month. Whole months stay whole months. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+			calculationItem PM =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+					VAR _wholeMonths = DAY ( _min ) = 1 && _end = EOMONTH ( _end, 0 )
+					VAR _priorStart = EDATE ( _min, -1 )
+					VAR _priorEnd = IF ( _wholeMonths, EOMONTH ( _end, -1 ), EDATE ( _end, -1 ) )
+					RETURN
+					    IF (
+					        _dated && NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+					        )
+					    )
+				ordinal: 13
+
+			/// The selected dates moved back one quarter. Whole months stay whole months. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+			calculationItem PQ =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+					VAR _wholeMonths = DAY ( _min ) = 1 && _end = EOMONTH ( _end, 0 )
+					VAR _priorStart = EDATE ( _min, -3 )
+					VAR _priorEnd = IF ( _wholeMonths, EOMONTH ( _end, -3 ), EDATE ( _end, -3 ) )
+					RETURN
+					    IF (
+					        _dated && NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+					        )
+					    )
+				ordinal: 14
+
+			/// The selected dates moved back one year. Whole months stay whole months. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+			calculationItem PY =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+					VAR _wholeMonths = DAY ( _min ) = 1 && _end = EOMONTH ( _end, 0 )
+					VAR _priorStart = EDATE ( _min, -12 )
+					VAR _priorEnd = IF ( _wholeMonths, EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+					RETURN
+					    IF (
+					        _dated && NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+					        )
+					    )
+				ordinal: 15
+
+			/// Month to date as it stood one month before the end date.
+			calculationItem 'PM MTD' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _pmEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -1 ), EDATE ( _end, -1 ) )
+					VAR _start = EOMONTH ( _pmEnd, -1 ) + 1
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _pmEnd
+					        )
+					    )
+				ordinal: 16
+
+			/// Quarter to date as it stood one quarter before the end date.
+			calculationItem 'PQ QTD' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _pqEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -3 ), EDATE ( _end, -3 ) )
+					VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfQuarter] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _pqEnd )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _pqEnd
+					        )
+					    )
+				ordinal: 17
+
+			/// Month to date as it stood one year before the end date.
+			calculationItem 'PY MTD' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _pyEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+					VAR _start = EOMONTH ( _pyEnd, -1 ) + 1
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _pyEnd
+					        )
+					    )
+				ordinal: 18
+
+			/// Quarter to date as it stood one year before the end date.
+			calculationItem 'PY QTD' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _pyEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+					VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfQuarter] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _pyEnd )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _pyEnd
+					        )
+					    )
+				ordinal: 19
+
+			/// Year to date as it stood one year before the end date.
+			calculationItem 'PY YTD' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _pyEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+					VAR _start = DATE ( YEAR ( _pyEnd ), 1, 1 )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _pyEnd
+					        )
+					    )
+				ordinal: 20
+
+			/// Fiscal year to date as it stood one year before the end date.
+			calculationItem 'PY FYTD' =
+					VAR _min = MIN ( DateDimension[Date] )
+					VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+					VAR _pyEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+					VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfFiscalYear] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _pyEnd )
+					RETURN
+					    IF (
+					        NOT ISBLANK ( _end ),
+					        CALCULATE (
+					            SELECTEDMEASURE (),
+					            REMOVEFILTERS ( DateDimension ),
+					            DateDimension[Date] >= _start && DateDimension[Date] <= _pyEnd
+					        )
+					    )
+				ordinal: 21
+
+			/// Change from the prior period of the same length. Blank when no dates are selected.
+			calculationItem PoP =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "Prior Period" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+					    )
+				ordinal: 22
+
+			/// Percentage change from the prior period of the same length. Blank when no dates are selected.
+			calculationItem 'PoP %' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "Prior Period" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+					    )
+				ordinal: 23
+
+				formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+			/// Change from the same dates one month earlier. Blank when no dates are selected.
+			calculationItem MoM =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PM" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+					    )
+				ordinal: 24
+
+			/// Percentage change from the same dates one month earlier. Blank when no dates are selected.
+			calculationItem 'MoM %' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PM" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+					    )
+				ordinal: 25
+
+				formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+			/// Change from the same dates one quarter earlier. Blank when no dates are selected.
+			calculationItem QoQ =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PQ" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+					    )
+				ordinal: 26
+
+			/// Percentage change from the same dates one quarter earlier. Blank when no dates are selected.
+			calculationItem 'QoQ %' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PQ" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+					    )
+				ordinal: 27
+
+				formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+			/// Change from the same dates one year earlier. Blank when no dates are selected.
+			calculationItem YoY =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+					    )
+				ordinal: 28
+
+			/// Percentage change from the same dates one year earlier. Blank when no dates are selected.
+			calculationItem 'YoY %' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+					    )
+				ordinal: 29
+
+				formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+			/// Change in month to date from the same point one month earlier.
+			calculationItem 'MTD MoM' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "MTD" )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PM MTD" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+					    )
+				ordinal: 30
+
+			/// Percentage change in month to date from the same point one month earlier.
+			calculationItem 'MTD MoM %' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "MTD" )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PM MTD" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+					    )
+				ordinal: 31
+
+				formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+			/// Change in quarter to date from the same point one quarter earlier.
+			calculationItem 'QTD QoQ' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "QTD" )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PQ QTD" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+					    )
+				ordinal: 32
+
+			/// Percentage change in quarter to date from the same point one quarter earlier.
+			calculationItem 'QTD QoQ %' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "QTD" )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PQ QTD" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+					    )
+				ordinal: 33
+
+				formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+			/// Change in year to date from the same point one year earlier.
+			calculationItem 'YTD YoY' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "YTD" )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY YTD" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+					    )
+				ordinal: 34
+
+			/// Percentage change in year to date from the same point one year earlier.
+			calculationItem 'YTD YoY %' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "YTD" )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY YTD" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+					    )
+				ordinal: 35
+
+				formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+			/// Change in fiscal year to date from the same point one year earlier.
+			calculationItem 'FYTD YoY' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "FYTD" )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY FYTD" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+					    )
+				ordinal: 36
+
+			/// Percentage change in fiscal year to date from the same point one year earlier.
+			calculationItem 'FYTD YoY %' =
+					VAR _measure = SELECTEDMEASURE ()
+					VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "FYTD" )
+					VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY FYTD" )
+					VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+					RETURN
+					    IF (
+					        _isText,
+					        _measure,
+					        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+					    )
+				ordinal: 37
+
+				formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+			/// Today only. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem Today = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Day Offset] == 0 ) )
+				ordinal: 38
+
+			/// Yesterday only. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem Yesterday = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Day Offset] == -1 ) )
+				ordinal: 39
+
+			/// Today and the 6 days before it. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'Last 7 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] >= -6 && DateDimension[Day Offset] <= 0 ) )
+				ordinal: 40
+
+			/// Today and the 29 days before it. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'Last 30 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] >= -29 && DateDimension[Day Offset] <= 0 ) )
+				ordinal: 41
+
+			/// Today and the 89 days before it. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'Last 90 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] >= -89 && DateDimension[Day Offset] <= 0 ) )
+				ordinal: 42
+
+			/// The whole current week. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'This Week' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Week Offset] == 0 ) )
+				ordinal: 43
+
+			/// The whole previous week. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'Last Week' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Week Offset] == -1 ) )
+				ordinal: 44
+
+			/// The whole current month. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'This Month' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Month Offset] == 0 ) )
+				ordinal: 45
+
+			/// The whole previous month. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'Last Month' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Month Offset] == -1 ) )
+				ordinal: 46
+
+			/// The whole current quarter. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'This Quarter' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Quarter Offset] == 0 ) )
+				ordinal: 47
+
+			/// The whole previous quarter. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'Last Quarter' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Quarter Offset] == -1 ) )
+				ordinal: 48
+
+			/// The whole current year. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'This Year' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Year Offset] == 0 ) )
+				ordinal: 49
+
+			/// The whole previous year. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'Last Year' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Year Offset] == -1 ) )
+				ordinal: 50
+
+			/// The whole current fiscal year. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'This Fiscal Year' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Fiscal Year Offset] == 0 ) )
+				ordinal: 51
+
+			/// The 7 days after today. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'Next 7 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Day Offset] >= 1 && DateDimension[Day Offset] <= 7 ) )
+				ordinal: 52
+
+			/// The 30 days after today. Applied within the dates selected, so on a date axis only the points inside the window show.
+			calculationItem 'Next 30 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Day Offset] >= 1 && DateDimension[Day Offset] <= 30 ) )
+				ordinal: 53
+
+		column Window
+			dataType: string
+			summarizeBy: none
+			sourceColumn: Name
+			sortByColumn: Ordinal
+
+			annotation SummarizationSetBy = Automatic
+
+		column Ordinal
+			dataType: int64
+			isHidden
+			formatString: 0
+			summarizeBy: none
+			sourceColumn: Ordinal
+
+			annotation SummarizationSetBy = User
+

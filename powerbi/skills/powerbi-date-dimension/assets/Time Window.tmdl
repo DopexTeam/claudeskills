@@ -1,0 +1,686 @@
+/// Date windows to apply to any measure. Put Window on a slicer, or on the columns or legend of a visual.
+table 'Time Window'
+
+	calculationGroup
+		precedence: 10
+
+		/// The measure as it is, under the dates selected.
+		calculationItem Current = SELECTEDMEASURE ()
+			ordinal: 0
+
+		/// Week to date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem WTD =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = CALCULATE ( MAX ( DateDimension[Start of Week] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _end )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 1
+
+		/// Month to date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem MTD =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = EOMONTH ( _end, -1 ) + 1
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 2
+
+		/// Quarter to date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem QTD =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfQuarter] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _end )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 3
+
+		/// Year to date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem YTD =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = DATE ( YEAR ( _end ), 1, 1 )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 4
+
+		/// Fiscal year to date, using the fiscal year configured in DateDimension. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem FYTD =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfFiscalYear] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _end )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 5
+
+		/// The 7 days up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem 'Rolling 7D' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = _end - 7
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] > _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 6
+
+		/// The 30 days up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem 'Rolling 30D' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = _end - 30
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] > _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 7
+
+		/// The 90 days up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem 'Rolling 90D' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = _end - 90
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] > _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 8
+
+		/// The 3 months up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem 'Rolling 3M' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -3 ), EDATE ( _end, -3 ) )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] > _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 9
+
+		/// The 12 months up to and including the end date. Ends on the last selected date that is not in the future. Blank when every selected date is in the future.
+		calculationItem 'Rolling 12M' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _start = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] > _start && DateDimension[Date] <= _end
+				        )
+				    )
+			ordinal: 10
+
+		/// The period of the same length immediately before the selected dates. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+		calculationItem 'Prior Period' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+				VAR _days = INT ( _end - _min ) + 1
+				VAR _priorStart = _min - _days
+				VAR _priorEnd = _min - 1
+				RETURN
+				    IF (
+				        _dated && NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+				        )
+				    )
+			ordinal: 11
+
+		/// The selected dates moved back 7 days. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+		calculationItem PW =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+				VAR _priorStart = _min - 7
+				VAR _priorEnd = _end - 7
+				RETURN
+				    IF (
+				        _dated && NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+				        )
+				    )
+			ordinal: 12
+
+		/// The selected dates moved back one month. Whole months stay whole months. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+		calculationItem PM =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+				VAR _wholeMonths = DAY ( _min ) = 1 && _end = EOMONTH ( _end, 0 )
+				VAR _priorStart = EDATE ( _min, -1 )
+				VAR _priorEnd = IF ( _wholeMonths, EOMONTH ( _end, -1 ), EDATE ( _end, -1 ) )
+				RETURN
+				    IF (
+				        _dated && NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+				        )
+				    )
+			ordinal: 13
+
+		/// The selected dates moved back one quarter. Whole months stay whole months. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+		calculationItem PQ =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+				VAR _wholeMonths = DAY ( _min ) = 1 && _end = EOMONTH ( _end, 0 )
+				VAR _priorStart = EDATE ( _min, -3 )
+				VAR _priorEnd = IF ( _wholeMonths, EOMONTH ( _end, -3 ), EDATE ( _end, -3 ) )
+				RETURN
+				    IF (
+				        _dated && NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+				        )
+				    )
+			ordinal: 14
+
+		/// The selected dates moved back one year. Whole months stay whole months. Future dates in the selection are left out first, so a period in progress is compared with the same span. Blank when no dates are selected, or every selected date is in the future.
+		calculationItem PY =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _dated = ISCROSSFILTERED ( DateDimension[Date] )
+				VAR _wholeMonths = DAY ( _min ) = 1 && _end = EOMONTH ( _end, 0 )
+				VAR _priorStart = EDATE ( _min, -12 )
+				VAR _priorEnd = IF ( _wholeMonths, EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+				RETURN
+				    IF (
+				        _dated && NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _priorStart && DateDimension[Date] <= _priorEnd
+				        )
+				    )
+			ordinal: 15
+
+		/// Month to date as it stood one month before the end date.
+		calculationItem 'PM MTD' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _pmEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -1 ), EDATE ( _end, -1 ) )
+				VAR _start = EOMONTH ( _pmEnd, -1 ) + 1
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _pmEnd
+				        )
+				    )
+			ordinal: 16
+
+		/// Quarter to date as it stood one quarter before the end date.
+		calculationItem 'PQ QTD' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _pqEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -3 ), EDATE ( _end, -3 ) )
+				VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfQuarter] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _pqEnd )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _pqEnd
+				        )
+				    )
+			ordinal: 17
+
+		/// Month to date as it stood one year before the end date.
+		calculationItem 'PY MTD' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _pyEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+				VAR _start = EOMONTH ( _pyEnd, -1 ) + 1
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _pyEnd
+				        )
+				    )
+			ordinal: 18
+
+		/// Quarter to date as it stood one year before the end date.
+		calculationItem 'PY QTD' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _pyEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+				VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfQuarter] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _pyEnd )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _pyEnd
+				        )
+				    )
+			ordinal: 19
+
+		/// Year to date as it stood one year before the end date.
+		calculationItem 'PY YTD' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _pyEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+				VAR _start = DATE ( YEAR ( _pyEnd ), 1, 1 )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _pyEnd
+				        )
+				    )
+			ordinal: 20
+
+		/// Fiscal year to date as it stood one year before the end date.
+		calculationItem 'PY FYTD' =
+				VAR _min = MIN ( DateDimension[Date] )
+				VAR _end = CALCULATE ( MAX ( DateDimension[Date] ), KEEPFILTERS ( DateDimension[Day Offset] <= 0 ) )
+				VAR _pyEnd = IF ( _end = EOMONTH ( _end, 0 ), EOMONTH ( _end, -12 ), EDATE ( _end, -12 ) )
+				VAR _start = CALCULATE ( MAX ( DateDimension[FirstDayOfFiscalYear] ), REMOVEFILTERS ( DateDimension ), DateDimension[Date] = _pyEnd )
+				RETURN
+				    IF (
+				        NOT ISBLANK ( _end ),
+				        CALCULATE (
+				            SELECTEDMEASURE (),
+				            REMOVEFILTERS ( DateDimension ),
+				            DateDimension[Date] >= _start && DateDimension[Date] <= _pyEnd
+				        )
+				    )
+			ordinal: 21
+
+		/// Change from the prior period of the same length. Blank when no dates are selected.
+		calculationItem PoP =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "Prior Period" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+				    )
+			ordinal: 22
+
+		/// Percentage change from the prior period of the same length. Blank when no dates are selected.
+		calculationItem 'PoP %' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "Prior Period" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+				    )
+			ordinal: 23
+
+			formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+		/// Change from the same dates one month earlier. Blank when no dates are selected.
+		calculationItem MoM =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PM" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+				    )
+			ordinal: 24
+
+		/// Percentage change from the same dates one month earlier. Blank when no dates are selected.
+		calculationItem 'MoM %' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PM" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+				    )
+			ordinal: 25
+
+			formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+		/// Change from the same dates one quarter earlier. Blank when no dates are selected.
+		calculationItem QoQ =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PQ" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+				    )
+			ordinal: 26
+
+		/// Percentage change from the same dates one quarter earlier. Blank when no dates are selected.
+		calculationItem 'QoQ %' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PQ" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+				    )
+			ordinal: 27
+
+			formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+		/// Change from the same dates one year earlier. Blank when no dates are selected.
+		calculationItem YoY =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+				    )
+			ordinal: 28
+
+		/// Percentage change from the same dates one year earlier. Blank when no dates are selected.
+		calculationItem 'YoY %' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] <= 0 ) )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+				    )
+			ordinal: 29
+
+			formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+		/// Change in month to date from the same point one month earlier.
+		calculationItem 'MTD MoM' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "MTD" )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PM MTD" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+				    )
+			ordinal: 30
+
+		/// Percentage change in month to date from the same point one month earlier.
+		calculationItem 'MTD MoM %' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "MTD" )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PM MTD" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+				    )
+			ordinal: 31
+
+			formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+		/// Change in quarter to date from the same point one quarter earlier.
+		calculationItem 'QTD QoQ' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "QTD" )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PQ QTD" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+				    )
+			ordinal: 32
+
+		/// Percentage change in quarter to date from the same point one quarter earlier.
+		calculationItem 'QTD QoQ %' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "QTD" )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PQ QTD" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+				    )
+			ordinal: 33
+
+			formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+		/// Change in year to date from the same point one year earlier.
+		calculationItem 'YTD YoY' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "YTD" )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY YTD" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+				    )
+			ordinal: 34
+
+		/// Percentage change in year to date from the same point one year earlier.
+		calculationItem 'YTD YoY %' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "YTD" )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY YTD" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+				    )
+			ordinal: 35
+
+			formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+		/// Change in fiscal year to date from the same point one year earlier.
+		calculationItem 'FYTD YoY' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "FYTD" )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY FYTD" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ) && NOT ISBLANK ( _prior ), _current - _prior )
+				    )
+			ordinal: 36
+
+		/// Percentage change in fiscal year to date from the same point one year earlier.
+		calculationItem 'FYTD YoY %' =
+				VAR _measure = SELECTEDMEASURE ()
+				VAR _current = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "FYTD" )
+				VAR _prior = CALCULATE ( SELECTEDMEASURE (), 'Time Window'[Window] = "PY FYTD" )
+				VAR _isText = ISTEXT ( _measure ) || ISTEXT ( _current ) || ISTEXT ( _prior )
+				RETURN
+				    IF (
+				        _isText,
+				        _measure,
+				        IF ( NOT ISBLANK ( _current ), DIVIDE ( _current - _prior, _prior ) )
+				    )
+			ordinal: 37
+
+			formatStringDefinition = IF ( ISTEXT ( SELECTEDMEASURE () ), SELECTEDMEASUREFORMATSTRING (), "0.0%;-0.0%;0.0%" )
+
+		/// Today only. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem Today = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Day Offset] == 0 ) )
+			ordinal: 38
+
+		/// Yesterday only. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem Yesterday = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Day Offset] == -1 ) )
+			ordinal: 39
+
+		/// Today and the 6 days before it. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'Last 7 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] >= -6 && DateDimension[Day Offset] <= 0 ) )
+			ordinal: 40
+
+		/// Today and the 29 days before it. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'Last 30 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] >= -29 && DateDimension[Day Offset] <= 0 ) )
+			ordinal: 41
+
+		/// Today and the 89 days before it. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'Last 90 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( NOT ISBLANK ( DateDimension[Day Offset] ) && DateDimension[Day Offset] >= -89 && DateDimension[Day Offset] <= 0 ) )
+			ordinal: 42
+
+		/// The whole current week. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'This Week' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Week Offset] == 0 ) )
+			ordinal: 43
+
+		/// The whole previous week. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'Last Week' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Week Offset] == -1 ) )
+			ordinal: 44
+
+		/// The whole current month. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'This Month' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Month Offset] == 0 ) )
+			ordinal: 45
+
+		/// The whole previous month. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'Last Month' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Month Offset] == -1 ) )
+			ordinal: 46
+
+		/// The whole current quarter. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'This Quarter' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Quarter Offset] == 0 ) )
+			ordinal: 47
+
+		/// The whole previous quarter. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'Last Quarter' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Quarter Offset] == -1 ) )
+			ordinal: 48
+
+		/// The whole current year. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'This Year' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Year Offset] == 0 ) )
+			ordinal: 49
+
+		/// The whole previous year. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'Last Year' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Year Offset] == -1 ) )
+			ordinal: 50
+
+		/// The whole current fiscal year. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'This Fiscal Year' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Fiscal Year Offset] == 0 ) )
+			ordinal: 51
+
+		/// The 7 days after today. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'Next 7 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Day Offset] >= 1 && DateDimension[Day Offset] <= 7 ) )
+			ordinal: 52
+
+		/// The 30 days after today. Applied within the dates selected, so on a date axis only the points inside the window show.
+		calculationItem 'Next 30 Days' = CALCULATE ( SELECTEDMEASURE (), KEEPFILTERS ( DateDimension[Day Offset] >= 1 && DateDimension[Day Offset] <= 30 ) )
+			ordinal: 53
+
+	column Window
+		dataType: string
+		summarizeBy: none
+		sourceColumn: Name
+		sortByColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordinal
+		dataType: int64
+		isHidden
+		formatString: 0
+		summarizeBy: none
+		sourceColumn: Ordinal
+
+		annotation SummarizationSetBy = User
